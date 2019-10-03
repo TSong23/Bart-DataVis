@@ -29242,12 +29242,24 @@ __webpack_require__.r(__webpack_exports__);
 var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
 var width = document.body.clientWidth;
 var height = document.body.clientHeight;
-var myTree = tree().size([height, width]);
+var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().size([height, width]);
 svg.attr('width', width).attr('height', height).append('rect').attr('width', width).attr('height', height).attr('rx', 40); // const svg = select('svg')
 // svg.style('background-color', 'lightblue');
 
 Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('testData.json').then(function (data) {
-  console.log(data);
+  // need to call hierarchy on data to get it ready for d3
+  console.log('data', data);
+  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data['2019-01-01']); // let actualRoot = root.data;
+  // console.log('actualRoot', actualRoot)
+
+  var links = treeLayout(root).links();
+  console.log('links', links);
+  var linkPathGenerator = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
+    return d.y;
+  }).y(function (d) {
+    return d.x;
+  });
+  svg.selectAll('path').data(links).enter().append('path').attr('d', linkPathGenerator);
 });
 
 /***/ })
