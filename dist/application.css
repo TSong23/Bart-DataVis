@@ -1,4 +1,9 @@
-.title {
-  font-family: Arial, Helvetica, sans-serif;
-  color:blue;
+body {
+  height: 960px;
+  width: 90%;
+}
+
+path {
+  fill: none;
+  stroke: black;
 }

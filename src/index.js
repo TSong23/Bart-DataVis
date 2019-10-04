@@ -26,7 +26,6 @@ json('data2.json')
 
     console.log('links', links)
 
-
     const linkPathGenerator = linkHorizontal()
       .x(d => d.y)
       .y(d =>d.x);
