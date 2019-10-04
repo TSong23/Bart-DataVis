@@ -7,11 +7,12 @@ body {
   margin: 100px, 100px, 100px, 100px;
   overflow: scroll;
   color: lightskyblue;
+  background-color: rgb(41, 40, 40);
 }
 
 path {
   fill: none;
-  stroke: rgb(155, 160, 82);
+  stroke: rgb(51, 165, 173);
 }
 
 text {
@@ -22,5 +23,5 @@ text {
     1px  1px 3px white;
   pointer-events: none;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
-  color: lightskyblue;
+  color: rgb(238, 250, 135);
 }

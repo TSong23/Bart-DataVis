@@ -1,4 +1,4 @@
-import {select, json, tree, hierarchy, linkHorizontal, zoom, event} from 'd3';
+import {select, json, tree, hierarchy, linkHorizontal, zoom, event, layout, diagonal} from 'd3';
 
 const svg = select('svg');
 
