@@ -29243,13 +29243,12 @@ var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
 var width = document.body.clientWidth;
 var height = document.body.clientHeight;
 var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().size([height, width]);
-svg.attr('width', width).attr('height', height).append('rect').attr('width', width).attr('height', height).attr('rx', 40); // const svg = select('svg')
-// svg.style('background-color', 'lightblue');
-
-Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('testData.json').then(function (data) {
+svg.attr('width', width).attr('height', height);
+Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('data2.json').then(function (data) {
   // need to call hierarchy on data to get it ready for d3
-  console.log('data', data);
-  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data['2019-01-01']); // let actualRoot = root.data;
+  // let consoleData = data['2019-01-01']['11'];
+  // console.log('data', data);
+  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data); // let actualRoot = root.data;
   // console.log('actualRoot', actualRoot)
 
   var links = treeLayout(root).links();
