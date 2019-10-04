@@ -29242,15 +29242,22 @@ __webpack_require__.r(__webpack_exports__);
 var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
 var width = document.body.clientWidth;
 var height = document.body.clientHeight;
-var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().size([height, width]);
-svg.attr('width', width).attr('height', height);
-Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('data2.json').then(function (data) {
-  // need to call hierarchy on data to get it ready for d3
-  // let consoleData = data['2019-01-01']['11'];
-  // console.log('data', data);
-  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data); // let actualRoot = root.data;
-  // console.log('actualRoot', actualRoot)
-
+var margin = {
+  top: 0,
+  right: 100,
+  bottom: 0,
+  left: 75
+};
+var innerWidth = width - margin.left - margin.right;
+var innerHeight = height - margin.top - margin.bottom;
+var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().size([innerHeight, innerWidth]);
+var zoomG = svg.attr('width', width).attr('height', height).append('g');
+var g = zoomG.append('g').attr('tranform', "translate(".concat(margin.left, ", ").concat(margin.top, ")"));
+svg.call(Object(d3__WEBPACK_IMPORTED_MODULE_0__["zoom"])().on('zoom', function () {
+  g.attr('transform', d3__WEBPACK_IMPORTED_MODULE_0__["event"].transform);
+}));
+Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
+  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data['2019-01-01']['11']['MONT']);
   var links = treeLayout(root).links();
   console.log('links', links);
   var linkPathGenerator = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
@@ -29258,7 +29265,16 @@ Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('data2.json').then(function (dat
   }).y(function (d) {
     return d.x;
   });
-  svg.selectAll('path').data(links).enter().append('path').attr('d', linkPathGenerator);
+  g.selectAll('path').data(links).enter().append('path').attr('d', linkPathGenerator);
+  g.selectAll('text').data(root.descendants()).enter().append('text').attr('x', function (d) {
+    return d.y;
+  }).attr('y', function (d) {
+    return d.x;
+  }) // .attr('dy', '0.32em')  
+  // .attr('text-anchor',d => d.children ? 'middle' : 'start')
+  .text(function (d) {
+    return d.children ? d.data.name : [d.data.name, d.data.value];
+  });
 });
 
 /***/ })

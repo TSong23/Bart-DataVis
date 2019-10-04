@@ -1,27 +1,33 @@
-import {select, json, tree, hierarchy, linkHorizontal} from 'd3';
+import {select, json, tree, hierarchy, linkHorizontal, zoom, event} from 'd3';
 
 const svg = select('svg');
 
 const width = document.body.clientWidth;
 const height = document.body.clientHeight;
 
-const treeLayout = tree()
-  .size([height, width]);
+const margin = { top: 0, right: 100, bottom: 0, left: 75 };
+const innerWidth = width - margin.left - margin.right;
+const innerHeight = height - margin.top - margin.bottom;
 
-svg 
-    .attr('width', width)
-    .attr('height', height)
-    
+const treeLayout = tree().size([innerHeight, innerWidth]);
 
+const zoomG = svg 
+  .attr('width', width)
+  .attr('height', height)
+  .append('g')
 
-json('data2.json')
+const g = zoomG.append('g')
+  .attr('tranform', `translate(${margin.left}, ${margin.top})`);
+
+svg.call(zoom().on('zoom', () => {
+  g.attr('transform', event.transform);
+}))
+
+json('oneDaydata.json')
   .then(data => {
-    // need to call hierarchy on data to get it ready for d3
-    // let consoleData = data['2019-01-01']['11'];
-    // console.log('data', data);
-    const root = hierarchy(data);
-    // let actualRoot = root.data;
-    // console.log('actualRoot', actualRoot)
+   
+    const root = hierarchy(data['2019-01-01']['11']['MONT']);
+    
     const links = treeLayout(root).links();
 
     console.log('links', links)
@@ -30,8 +36,16 @@ json('data2.json')
       .x(d => d.y)
       .y(d =>d.x);
 
-    svg.selectAll('path').data(links)
+    g.selectAll('path').data(links)
       .enter().append('path')
         .attr('d', linkPathGenerator);
+
+    g.selectAll('text').data(root.descendants())
+      .enter().append('text')
+        .attr('x', d => d.y)
+        .attr('y', d => d.x)  
+        // .attr('dy', '0.32em')  
+        // .attr('text-anchor',d => d.children ? 'middle' : 'start')
+      .text(d => d.children ? d.data.name : [d.data.name, d.data.value])   
   });
 

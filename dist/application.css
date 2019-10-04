@@ -1,9 +1,26 @@
 body {
-  height: 960px;
-  width: 90%;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: 100px, 100px, 100px, 100px;
+  overflow: scroll;
+  color: lightskyblue;
 }
 
 path {
   fill: none;
-  stroke: black;
+  stroke: rgb(155, 160, 82);
+}
+
+text {
+  text-shadow:
+   -1px -1px 3px white,
+   -1px  1px 3px white,
+    1px -1px 3px white,
+    1px  1px 3px white;
+  pointer-events: none;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+  color: lightskyblue;
 }
