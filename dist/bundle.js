@@ -29244,41 +29244,142 @@ __webpack_require__.r(__webpack_exports__);
 
 var date = '2019-01-01';
 var hour = '11';
-var origin = 'MONT'; // constants needed inside the async
+var origin = 'MONT'; // constants needed for svg inside async
 
-var dy = 150;
-var dx = 10;
+var width = 900;
 var margin = {
   top: 10,
   right: 120,
   bottom: 10,
   left: 40
 };
-Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
-  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data["".concat(date)]["".concat(hour)]["".concat(origin)]);
-  var links = root.links(); // not sure what this does
-  // each node has a property of x0 and y0 for some reason
+var dy = 150;
+var dx = 10; // define tree layout
+// done in both example.js and freecode camp video
 
-  root.eachBefore(function (d) {
-    d.x0 = d.x;
-    console.log(d.x);
-    d.y0 = d.y;
-  }); // chart render and transition logic
+var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().nodeSize([dx, dy]); // select svg element defined in index.html
+// construct nodes
+
+var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
+var gLink = svg.append("g");
+var gNode = svg.append("g"); // define the string connection
+
+var diagonal = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
+  return d.y;
+}).y(function (d) {
+  return d.x;
+});
+Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
+  // get root to be in form
+  // nodes is just an array; idk why reversed tho
+  // each node has attributes of data, depth, height, parent, x, y
+  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data["".concat(date)]["".concat(hour)]["".concat(origin)]);
+  var nodes = root.descendants().reverse();
+  var links = root.links(); // compute the new tree layout. not sure what this changes
+
+  treeLayout(root); //define some root attributes
+
+  root.x0 = dy / 2;
+  root.y0 = 0;
+  root.descendants().forEach(function (d, i) {
+    d.id = i;
+    d._children = d.children;
+    if (d.depth && d.data.name.length !== 7) d.children = null;
+  });
+  console.log("root.descendants", root.descendants()); // chart render and transition logic
 
   var left = root;
   var right = root;
   root.eachBefore(function (node) {
     if (node.x < left.x) left = node;
     if (node.x > right.x) right = node;
-  }); // 
+  }); //left and right refers to the edge leaf nodes
+  // has property of x that shows pixel coordinate of sort
+
+  console.log("left", left);
+  console.log("right", right); //height = leaf nodes height. duration = transition duraiton
 
   var height = right.x - left.x + margin.top + margin.bottom;
-  var linkPathGenerator = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])();
-}); // const root = hierarchy(data['2019-01-01']['11']['MONT']);
-// console.log("root", root)
+  var duration = d3__WEBPACK_IMPORTED_MODULE_0__["event"] && d3__WEBPACK_IMPORTED_MODULE_0__["event"].altKey ? 2500 : 250; // transition animation logic
 
-var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg'); // make the width and heigh flexible
-// 
+  var transition = svg.transition().duration(duration).attr("viewBox", [-margin.left, left.x - margin.top, width, height]).tween("resize", window.ResizeObserver ? null : function () {
+    return function () {
+      return svg.dispatch("toggle");
+    };
+  }); //update the nodes
+  // for all the nodes, parent is now defined as "g"
+
+  var node = gNode.selectAll("g").data(nodes, function (d) {
+    return d.id;
+  });
+  console.log("node", node); // nodeEnter is some crazy object
+
+  var nodeEnter = node.enter().append("g").attr("transform", function (d) {
+    return "translate(".concat(root.y0, ",").concat(root.x0, ")");
+  }).attr("fill-opacity", 0).attr("stroke-opacity", 0).on("click", function (d) {
+    d.children = d.children ? null : d._children;
+    update(d);
+  });
+  nodeEnter.append("circle").attr("r", 2.5).attr("fill", function (d) {
+    return d._children ? "#555" : "#999";
+  }).attr("stroke-width", 10);
+  nodeEnter.append("text").attr("dy", "0.31em").attr("x", function (d) {
+    return d._children ? -6 : 6;
+  }).attr("text-anchor", function (d) {
+    return d._children ? "end" : "start";
+  }).clone(true).lower().attr("stroke-linejoin", "round").attr("stroke-width", 3).text(function (d) {
+    return d.children ? d.data.name : "".concat(d.data.name, ": ").concat(d.data.value);
+  }).attr("stroke", "white");
+  console.log("nodeEnter", nodeEnter); // Transition nodes to their new position.
+
+  var nodeUpdate = node.merge(nodeEnter).transition(transition).attr("transform", function (d) {
+    return "translate(".concat(d.y, ",").concat(d.x, ")");
+  }).attr("fill-opacity", 1).attr("stroke-opacity", 1); // Transition exiting nodes to the parent's new position.
+
+  var nodeExit = node.exit().transition(transition).remove().attr("transform", function (d) {
+    return "translate(".concat(source.y, ",").concat(source.x, ")");
+  }).attr("fill-opacity", 0).attr("stroke-opacity", 0); // Update the links…
+
+  var link = gLink.selectAll("path").data(links, function (d) {
+    return d.target.id;
+  }); // Enter any new links at the parent's previous position.
+
+  var linkEnter = link.enter().append("path").attr("d", function (d) {
+    var o = {
+      x: root.x0,
+      y: root.y0
+    };
+    return diagonal({
+      root: o,
+      target: o
+    });
+  }); // Transition links to their new position.
+
+  link.merge(linkEnter).transition(transition).attr("d", diagonal); // Transition exiting nodes to the parent's new position.
+
+  link.exit().transition(transition).remove().attr("d", function (d) {
+    var o = {
+      x: root.x,
+      y: root.y
+    };
+    return diagonal({
+      root: o,
+      target: o
+    });
+  }); // Stash the old positions for transition.
+
+  root.eachBefore(function (d) {
+    d.x0 = d.x;
+    d.y0 = d.y;
+  });
+}); // // not sure what this does
+//     // each node has a property of x0 and y0 for some reason
+//     // root.eachBefore(d => {
+//     //   d.x0 = d.x;
+//     //   console.log(d.x)
+//     //   d.y0 = d.y;
+//     // });
+//     // const linkPathGenerator = linkHorizontal()
 //////////////////////////////////////////////////////////////////
 // const svg = select('svg');
 // const width = document.body.clientWidth;
