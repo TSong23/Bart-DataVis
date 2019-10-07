@@ -29238,46 +29238,87 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
+ // like example, start with defining root and then defining
+// chart size
+// try setting the svg inside the async
 
-var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
-var width = document.body.clientWidth;
-var height = document.body.clientHeight;
+var date = '2019-01-01';
+var hour = '11';
+var origin = 'MONT'; // constants needed inside the async
+
+var dy = 150;
+var dx = 10;
 var margin = {
-  top: 0,
-  right: 100,
-  bottom: 0,
-  left: 75
+  top: 10,
+  right: 120,
+  bottom: 10,
+  left: 40
 };
-var innerWidth = width - margin.left - margin.right;
-var innerHeight = height - margin.top - margin.bottom;
-var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().size([innerHeight, innerWidth]);
-var zoomG = svg.attr('width', width).attr('height', height).append('g');
-var g = zoomG.append('g').attr('tranform', "translate(".concat(margin.left, ", ").concat(margin.top, ")"));
-svg.call(Object(d3__WEBPACK_IMPORTED_MODULE_0__["zoom"])().on('zoom', function () {
-  g.attr('transform', d3__WEBPACK_IMPORTED_MODULE_0__["event"].transform);
-}));
 Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
-  //testing root descendents
-  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data['2019-01-01']['11']['MONT']);
-  console.log('descendents', root);
-  var links = treeLayout(root).links();
-  console.log('links', links);
-  var linkPathGenerator = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
-    return d.y;
-  }).y(function (d) {
-    return d.x;
-  });
-  g.selectAll('path').data(links).enter().append('path').attr('d', linkPathGenerator);
-  g.append("circle").attr("r", 2.5);
-  g.selectAll('text').data(root.descendants()).enter().append('text').attr('x', function (d) {
-    return d.y;
-  }).attr('y', function (d) {
-    return d.x;
-  }).attr('dy', '0.32em') // .attr('text-anchor',d => d.children ? 'middle' : 'start')
-  .text(function (d) {
-    return d.children ? d.data.name : "".concat(d.data.name, ": ").concat(d.data.value);
-  });
-});
+  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data["".concat(date)]["".concat(hour)]["".concat(origin)]);
+  var links = root.links(); // not sure what this does
+  // each node has a property of x0 and y0 for some reason
+
+  root.eachBefore(function (d) {
+    d.x0 = d.x;
+    console.log(d.x);
+    d.y0 = d.y;
+  }); // chart render and transition logic
+
+  var left = root;
+  var right = root;
+  root.eachBefore(function (node) {
+    if (node.x < left.x) left = node;
+    if (node.x > right.x) right = node;
+  }); // 
+
+  var height = right.x - left.x + margin.top + margin.bottom;
+  var linkPathGenerator = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])();
+}); // const root = hierarchy(data['2019-01-01']['11']['MONT']);
+// console.log("root", root)
+
+var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg'); // make the width and heigh flexible
+// 
+//////////////////////////////////////////////////////////////////
+// const svg = select('svg');
+// const width = document.body.clientWidth;
+// const height = document.body.clientHeight;
+// const margin = { top: 0, right: 100, bottom: 0, left: 75 };
+// const innerWidth = width - margin.left - margin.right;
+// const innerHeight = height - margin.top - margin.bottom;
+// const treeLayout = tree().size([innerHeight, innerWidth]);
+// const zoomG = svg 
+//   .attr('width', width)
+//   .attr('height', height)
+//   .append('g')
+// const g = zoomG.append('g')
+//   .attr('tranform', `translate(${margin.left}, ${margin.top})`);
+// svg.call(zoom().on('zoom', () => {
+//   g.attr('transform', event.transform);
+// }))
+// json('oneDaydata.json')
+//   .then(data => {
+//     //testing root descendents
+//     const root = hierarchy(data['2019-01-01']['11']['MONT']);
+//     console.log('descendents',root)
+//     const links = treeLayout(root).links();
+//     console.log('links', links)
+//     const linkPathGenerator = linkHorizontal()
+//       .x(d => d.y)
+//       .y(d =>d.x);
+//     g.selectAll('path').data(links)
+//       .enter().append('path')
+//         .attr('d', linkPathGenerator);
+//     g.append("circle")
+//       .attr("r", 2.5);
+//     g.selectAll('text').data(root.descendants())
+//       .enter().append('text')
+//         .attr('x', d => d.y)
+//         .attr('y', d => d.x)  
+//         .attr('dy', '0.32em')  
+//         // .attr('text-anchor',d => d.children ? 'middle' : 'start')
+//       .text(d => d.children ? d.data.name : `${d.data.name}: ${d.data.value}`)   
+//   });
 
 /***/ })
 

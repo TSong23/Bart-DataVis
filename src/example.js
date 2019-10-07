@@ -37,11 +37,16 @@ chart = {
   // reverse the nodes array. nodes arr is used to append attribute
 
   const links = root.links();
+  //root.links() returns a flat array of objects containing all the parent-child links.
 
   // Compute the new tree layout.
   tree(root);
     //tree returns node-link diagrams based on reingold-tilford algo
 
+  //the below iterates throught the nodes to determine the height of the chart
+  // eachBefore: invokes the specified function for node and each descendant 
+  // such that a given node is only visited after all of its ancestors have 
+  // already been visited. The specified function is passed the current node.
   let left = root;
   let right = root;
   root.eachBefore(node => {
@@ -51,16 +56,19 @@ chart = {
 
   const height = right.x - left.x + margin.top + margin.bottom;
 
+  // with each node update, this takes care of transition
   const transition = svg.transition()
     .duration(duration)
     .attr("viewBox", [-margin.left, left.x - margin.top, width, height])
     .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
 
   // Update the nodes…
+  // for my case, this would be d.name
   const node = gNode.selectAll("g")
     .data(nodes, d => d.id);
 
   // Enter any new nodes at the parent's previous position.
+  // source here is root node for me
   const nodeEnter = node.enter().append("g")
     .attr("transform", d => `translate(${source.y0},${source.x0})`)
     .attr("fill-opacity", 0)
