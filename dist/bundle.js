@@ -29257,7 +29257,9 @@ svg.call(Object(d3__WEBPACK_IMPORTED_MODULE_0__["zoom"])().on('zoom', function (
   g.attr('transform', d3__WEBPACK_IMPORTED_MODULE_0__["event"].transform);
 }));
 Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
+  //testing root descendents
   var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data['2019-01-01']['11']['MONT']);
+  console.log('descendents', root);
   var links = treeLayout(root).links();
   console.log('links', links);
   var linkPathGenerator = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
@@ -29266,14 +29268,14 @@ Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function
     return d.x;
   });
   g.selectAll('path').data(links).enter().append('path').attr('d', linkPathGenerator);
+  g.append("circle").attr("r", 2.5);
   g.selectAll('text').data(root.descendants()).enter().append('text').attr('x', function (d) {
     return d.y;
   }).attr('y', function (d) {
     return d.x;
-  }) // .attr('dy', '0.32em')  
-  // .attr('text-anchor',d => d.children ? 'middle' : 'start')
+  }).attr('dy', '0.32em') // .attr('text-anchor',d => d.children ? 'middle' : 'start')
   .text(function (d) {
-    return d.children ? d.data.name : [d.data.name, d.data.value];
+    return d.children ? d.data.name : "".concat(d.data.name, ": ").concat(d.data.value);
   });
 });
 

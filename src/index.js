@@ -1,4 +1,4 @@
-import {select, json, tree, hierarchy, linkHorizontal, zoom, event, layout, diagonal} from 'd3';
+import {select, json, tree, hierarchy, linkHorizontal, zoom, event} from 'd3';
 
 const svg = select('svg');
 
@@ -25,9 +25,10 @@ svg.call(zoom().on('zoom', () => {
 
 json('oneDaydata.json')
   .then(data => {
-   
+    //testing root descendents
     const root = hierarchy(data['2019-01-01']['11']['MONT']);
     
+    console.log('descendents',root)
     const links = treeLayout(root).links();
 
     console.log('links', links)
@@ -39,13 +40,16 @@ json('oneDaydata.json')
     g.selectAll('path').data(links)
       .enter().append('path')
         .attr('d', linkPathGenerator);
+    
+    g.append("circle")
+      .attr("r", 2.5);
 
     g.selectAll('text').data(root.descendants())
       .enter().append('text')
         .attr('x', d => d.y)
         .attr('y', d => d.x)  
-        // .attr('dy', '0.32em')  
+        .attr('dy', '0.32em')  
         // .attr('text-anchor',d => d.children ? 'middle' : 'start')
-      .text(d => d.children ? d.data.name : [d.data.name, d.data.value])   
+      .text(d => d.children ? d.data.name : `${d.data.name}: ${d.data.value}`)   
   });
 
