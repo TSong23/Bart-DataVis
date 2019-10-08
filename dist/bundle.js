@@ -40339,9 +40339,9 @@ module.exports = g;
 
 /***/ }),
 
-/***/ "./src/index.js":
+/***/ "./src/trial.js":
 /*!**********************!*\
-  !*** ./src/index.js ***!
+  !*** ./src/trial.js ***!
   \**********************/
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -40349,70 +40349,15 @@ module.exports = g;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
-
 __webpack_require__(/*! babel-core/register */ "./node_modules/babel-core/register.js");
 
 __webpack_require__(/*! babel-polyfill */ "./node_modules/babel-polyfill/lib/index.js");
 
- // chart is rendering but the way this chart works is through recursive calls
-// define the root data outside. then define the recrusive "update"
-// then pass in the root while making sure it works with the svg somehow
-// these variables need to be changed through user interaction
-// whenever user submits the day, hour, and station, the page should refresh
+ //STEP 0: Get user input
 
 var date = '2019-01-01';
 var hour = '11';
-var origin = 'MONT'; //asynchronously get the data; render the loading symbol while wating
-
-var bartData;
-
-function fetchData() {
-  return _fetchData.apply(this, arguments);
-}
-
-function _fetchData() {
-  _fetchData = _asyncToGenerator(
-  /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee() {
-    "use strict";
-
-    var response, data;
-    return regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            _context.next = 2;
-            return fetch('./oneDaydata.json');
-
-          case 2:
-            response = _context.sent;
-            _context.next = 5;
-            return response.json();
-
-          case 5:
-            data = _context.sent;
-            console.log("await");
-            return _context.abrupt("return", data);
-
-          case 8:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee);
-  }));
-  return _fetchData.apply(this, arguments);
-}
-
-fetchData().then(function (data) {
-  bartData = data;
-});
-console.log("bartData", bartData); //run the recursive function
-// wrap both recursive and fetch in another function
-// constants needed for svg inside async
+var origin = 'MONT'; //STEP 1: constants needed
 
 var width = 900;
 var margin = {
@@ -40422,28 +40367,36 @@ var margin = {
   left: 40
 };
 var dy = 150;
-var dx = 10; // define tree layout
-// done in both example.js and freecode camp video
-
-var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().nodeSize([dx, dy]); // select svg element defined in index.html
-// construct nodes
-
+var dx = 10;
+var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().nodeSize([dx, dy]);
 var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
 var gLink = svg.append("g");
-var gNode = svg.append("g"); // define the string connection
-
+var gNode = svg.append("g");
 var diagonal = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
   return d.y;
 }).y(function (d) {
   return d.x;
-});
+}); //STEP 1: load data
+
 Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
-  // get root to be in form
-  // nodes is just an array; idk why reversed tho
-  // each node has attributes of data, depth, height, parent, x, y
   var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data["".concat(date)]["".concat(hour)]["".concat(origin)]);
+  root.x0 = dy / 2;
+  root.y0 = 0;
+  root.descendants().forEach(function (d, i) {
+    d.id = i;
+    d._children = d.children;
+    if (d.depth && d.data.name.length !== 7) d.children = null;
+  }); // call the recursive function here?
+
+  console.log("root", root); //returns the root
+
+  update(root, root);
+}); //STEP 2: create recursive function to generate tree
+
+function update(source, root) {
+  //duration: needed for transition
   var nodes = root.descendants().reverse();
-  var links = root.links(); // compute the new tree layout. not sure what this changes
+  var links = root.links(); //from root passed in, make correct layout
 
   treeLayout(root); //define some root attributes
 
@@ -40453,19 +40406,14 @@ Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function
     d.id = i;
     d._children = d.children;
     if (d.depth && d.data.name.length !== 7) d.children = null;
-  });
-  console.log("root.descendants", root.descendants()); // chart render and transition logic
+  }); // chart render and transition logic
 
   var left = root;
   var right = root;
   root.eachBefore(function (node) {
     if (node.x < left.x) left = node;
     if (node.x > right.x) right = node;
-  }); //left and right refers to the edge leaf nodes
-  // has property of x that shows pixel coordinate of sort
-
-  console.log("left", left);
-  console.log("right", right); //height = leaf nodes height. duration = transition duraiton
+  }); //height = leaf nodes height. duration = transition duraiton
 
   var height = right.x - left.x + margin.top + margin.bottom;
   var duration = d3__WEBPACK_IMPORTED_MODULE_0__["event"] && d3__WEBPACK_IMPORTED_MODULE_0__["event"].altKey ? 2500 : 250; // transition animation logic
@@ -40480,15 +40428,13 @@ Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function
   var node = gNode.selectAll("g").data(nodes, function (d) {
     return d.id;
   });
-  console.log("node", node); // nodeEnter is some crazy object
-
   var nodeEnter = node.enter().append("g").attr("transform", function (d) {
     return "translate(".concat(root.y0, ",").concat(root.x0, ")");
   }).attr("fill-opacity", 0).attr("stroke-opacity", 0).on("click", function (d) {
     d.children = d.children ? null : d._children; // recursively calling this func
     // need to reformat
 
-    update(d);
+    update(d, root);
   });
   nodeEnter.append("circle").attr("r", 2.5).attr("fill", function (d) {
     return d._children ? "#555" : "#999";
@@ -40497,10 +40443,9 @@ Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function
     return d._children ? -6 : 6;
   }).attr("text-anchor", function (d) {
     return d._children ? "end" : "start";
-  }).clone(true).lower().attr("stroke-linejoin", "round").attr("stroke-width", 3).text(function (d) {
-    return d.children ? d.data.name : "".concat(d.data.name, ": ").concat(d.data.value);
-  }).attr("stroke", "white");
-  console.log("nodeEnter", nodeEnter); // Transition nodes to their new position.
+  }).text(function (d) {
+    return d.data.name;
+  }).clone(true).lower().attr("stroke-linejoin", "round").attr("stroke-width", 3).attr("stroke", "white"); // Transition nodes to their new position.
 
   var nodeUpdate = node.merge(nodeEnter).transition(transition).attr("transform", function (d) {
     return "translate(".concat(d.y, ",").concat(d.x, ")");
@@ -40516,11 +40461,11 @@ Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function
 
   var linkEnter = link.enter().append("path").attr("d", function (d) {
     var o = {
-      x: root.x0,
-      y: root.y0
+      x: source.x0,
+      y: source.y0
     };
     return diagonal({
-      root: o,
+      source: o,
       target: o
     });
   }); // Transition links to their new position.
@@ -40529,11 +40474,11 @@ Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function
 
   link.exit().transition(transition).remove().attr("d", function (d) {
     var o = {
-      x: root.x,
-      y: root.y
+      x: source.x,
+      y: source.y
     };
     return diagonal({
-      root: o,
+      source: o,
       target: o
     });
   }); // Stash the old positions for transition.
@@ -40542,66 +40487,19 @@ Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function
     d.x0 = d.x;
     d.y0 = d.y;
   });
-}); // // not sure what this does
-//     // each node has a property of x0 and y0 for some reason
-//     // root.eachBefore(d => {
-//     //   d.x0 = d.x;
-//     //   console.log(d.x)
-//     //   d.y0 = d.y;
-//     // });
-//     // const linkPathGenerator = linkHorizontal()
-//////////////////////////////////////////////////////////////////
-// const svg = select('svg');
-// const width = document.body.clientWidth;
-// const height = document.body.clientHeight;
-// const margin = { top: 0, right: 100, bottom: 0, left: 75 };
-// const innerWidth = width - margin.left - margin.right;
-// const innerHeight = height - margin.top - margin.bottom;
-// const treeLayout = tree().size([innerHeight, innerWidth]);
-// const zoomG = svg 
-//   .attr('width', width)
-//   .attr('height', height)
-//   .append('g')
-// const g = zoomG.append('g')
-//   .attr('tranform', `translate(${margin.left}, ${margin.top})`);
-// svg.call(zoom().on('zoom', () => {
-//   g.attr('transform', event.transform);
-// }))
-// json('oneDaydata.json')
-//   .then(data => {
-//     //testing root descendents
-//     const root = hierarchy(data['2019-01-01']['11']['MONT']);
-//     console.log('descendents',root)
-//     const links = treeLayout(root).links();
-//     console.log('links', links)
-//     const linkPathGenerator = linkHorizontal()
-//       .x(d => d.y)
-//       .y(d =>d.x);
-//     g.selectAll('path').data(links)
-//       .enter().append('path')
-//         .attr('d', linkPathGenerator);
-//     g.append("circle")
-//       .attr("r", 2.5);
-//     g.selectAll('text').data(root.descendants())
-//       .enter().append('text')
-//         .attr('x', d => d.y)
-//         .attr('y', d => d.x)  
-//         .attr('dy', '0.32em')  
-//         // .attr('text-anchor',d => d.children ? 'middle' : 'start')
-//       .text(d => d.children ? d.data.name : `${d.data.name}: ${d.data.value}`)   
-//   });
+}
 
 /***/ }),
 
 /***/ 0:
 /*!*******************************************!*\
-  !*** multi babel-polyfill ./src/index.js ***!
+  !*** multi babel-polyfill ./src/trial.js ***!
   \*******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(/*! babel-polyfill */"./node_modules/babel-polyfill/lib/index.js");
-module.exports = __webpack_require__(/*! ./src/index.js */"./src/index.js");
+module.exports = __webpack_require__(/*! ./src/trial.js */"./src/trial.js");
 
 
 /***/ })

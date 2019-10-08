@@ -8,27 +8,35 @@ import {select, json, tree, hierarchy, linkHorizontal, zoom, event} from 'd3';
 // then pass in the root while making sure it works with the svg somehow
 
 
+// this async function call works
+let data;
+async function fetchData(){
+  data = await json('oneDaydata.json');
+}
+
+
+
+
+
 // these variables need to be changed through user interaction
 // whenever user submits the day, hour, and station, the page should refresh
 let date = '2019-01-01';
 let hour = '11';
 let origin = 'MONT';
 
-//asynchronously get the data; render the loading symbol while wating
-let bartData;
-async function fetchData(){
-  "use strict";
-  let response = await fetch('./oneDaydata.json');
-  let data = await response.json();
-  console.log("await")
-  return data;
-}
-fetchData().then(data => {bartData = data});
+// define root for the bottom most stack
+const bartData = fetchData();
+let root = bartData[date][hour][origin];
+console.log("root", root);
 
-console.log("bartData", bartData)
 
-//run the recursive function
-// wrap both recursive and fetch in another function
+
+
+
+//refactor recursive function and take out constants to the front
+// 
+
+/////////////////////////////////////////////////////////////////
 
 // constants needed for svg inside async
 let width = 900;
