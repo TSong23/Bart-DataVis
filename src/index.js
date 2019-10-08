@@ -1,13 +1,34 @@
+require("babel-core/register");
+require("babel-polyfill");
 import {select, json, tree, hierarchy, linkHorizontal, zoom, event} from 'd3';
 
 
-// like example, start with defining root and then defining
-// chart size
+// chart is rendering but the way this chart works is through recursive calls
+// define the root data outside. then define the recrusive "update"
+// then pass in the root while making sure it works with the svg somehow
 
-// try setting the svg inside the async
+
+// these variables need to be changed through user interaction
+// whenever user submits the day, hour, and station, the page should refresh
 let date = '2019-01-01';
 let hour = '11';
 let origin = 'MONT';
+
+//asynchronously get the data; render the loading symbol while wating
+let bartData;
+async function fetchData(){
+  "use strict";
+  let response = await fetch('./oneDaydata.json');
+  let data = await response.json();
+  console.log("await")
+  return data;
+}
+fetchData().then(data => {bartData = data});
+
+console.log("bartData", bartData)
+
+//run the recursive function
+// wrap both recursive and fetch in another function
 
 // constants needed for svg inside async
 let width = 900;
@@ -87,6 +108,8 @@ json('oneDaydata.json')
       .attr("stroke-opacity", 0)
       .on("click", d => {
         d.children = d.children ? null : d._children;
+        // recursively calling this func
+        // need to reformat
         update(d);
       });
     
