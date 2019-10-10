@@ -40349,6 +40349,10 @@ module.exports = g;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 __webpack_require__(/*! babel-core/register */ "./node_modules/babel-core/register.js");
 
 __webpack_require__(/*! babel-polyfill */ "./node_modules/babel-polyfill/lib/index.js");
@@ -40359,7 +40363,7 @@ var date = '2019-01-01';
 var hour = '11';
 var origin = 'MONT'; //STEP 1: constants needed
 
-var width = 900;
+var width = 500;
 var margin = {
   top: 10,
   right: 120,
@@ -40378,7 +40382,7 @@ var diagonal = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(fun
   return d.x;
 }); //STEP 1: load data
 
-Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
+var fetchData = Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
   var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data["".concat(date)]["".concat(hour)]["".concat(origin)]);
   root.x0 = dy / 2;
   root.y0 = 0;
@@ -40388,13 +40392,45 @@ Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function
     if (d.depth && d.data.name.length !== 7) d.children = null;
   }); // call the recursive function here?
 
-  console.log("root", root); //returns the root
+  return root; // console.log("root", root) //returns the root
+  // update(root, root)
+}); //STEP 2: make async render function
 
-  update(root, root);
-}); //STEP 2: create recursive function to generate tree
+function render() {
+  return _render.apply(this, arguments);
+}
+
+function _render() {
+  _render = _asyncToGenerator(
+  /*#__PURE__*/
+  regeneratorRuntime.mark(function _callee() {
+    var root;
+    return regeneratorRuntime.wrap(function _callee$(_context) {
+      while (1) {
+        switch (_context.prev = _context.next) {
+          case 0:
+            _context.next = 2;
+            return fetchData;
+
+          case 2:
+            root = _context.sent;
+            console.log("line 47", root);
+
+          case 4:
+          case "end":
+            return _context.stop();
+        }
+      }
+    }, _callee);
+  }));
+  return _render.apply(this, arguments);
+}
+
+render(); //STEP 3: create recursive function to generate tree
 
 function update(source, root) {
-  //duration: needed for transition
+  console.log("update"); //duration: needed for transition
+
   var nodes = root.descendants().reverse();
   var links = root.links(); //from root passed in, make correct layout
 
@@ -40429,7 +40465,7 @@ function update(source, root) {
     return d.id;
   });
   var nodeEnter = node.enter().append("g").attr("transform", function (d) {
-    return "translate(".concat(root.y0, ",").concat(root.x0, ")");
+    return "translate(".concat(source.y0, ",").concat(source.x0, ")");
   }).attr("fill-opacity", 0).attr("stroke-opacity", 0).on("click", function (d) {
     d.children = d.children ? null : d._children; // recursively calling this func
     // need to reformat

@@ -10,7 +10,7 @@ let origin = 'MONT';
 
 
 //STEP 1: constants needed
-let width = 900;
+let width = 500;
 let margin = ({ top: 10, right: 120, bottom: 10, left: 40 });
 let dy = 150;
 let dx = 10;
@@ -24,8 +24,7 @@ const gNode = svg.append("g");
 const diagonal = linkHorizontal().x(d => d.y).y(d => d.x);
 
 //STEP 1: load data
-
-json('oneDaydata.json')
+let fetchData = json('oneDaydata.json')
   .then(data => {
     let root = hierarchy(data[`${date}`][`${hour}`][`${origin}`]);
     root.x0 = dy / 2;
@@ -36,13 +35,24 @@ json('oneDaydata.json')
       if (d.depth && d.data.name.length !== 7) d.children = null;
     });
     // call the recursive function here?
-    console.log("root", root) //returns the root
-    update(root, root)
+    return root;
+
+    // console.log("root", root) //returns the root
+    // update(root, root)
   })
 
+//STEP 2: make async render function
+async function render(){
+  let root = await fetchData;
+  console.log("line 47", root);
+}
+render();
 
-//STEP 2: create recursive function to generate tree
+
+
+//STEP 3: create recursive function to generate tree
 function update(source, root){
+  console.log("update");
 
   //duration: needed for transition
   const nodes = root.descendants().reverse();
@@ -84,7 +94,7 @@ function update(source, root){
     .data(nodes, d => d.id);
 
   const nodeEnter = node.enter().append("g")
-    .attr("transform", d => `translate(${root.y0},${root.x0})`)
+    .attr("transform", d => `translate(${source.y0},${source.x0})`)
     .attr("fill-opacity", 0)
     .attr("stroke-opacity", 0)
     .on("click", d => {
