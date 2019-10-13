@@ -7,21 +7,10 @@ import { select, json, tree, hierarchy, linkHorizontal, zoom, event } from 'd3';
 let date = '2019-01-01';
 let hour = '11';
 let origin = 'MONT';
-
-
-//STEP 1: constants needed
-let width = 500;
-let margin = ({ top: 10, right: 120, bottom: 10, left: 40 });
-let dy = 150;
-let dx = 10;
-
-const treeLayout = tree().nodeSize([dx, dy]);
-
-const svg = select('svg');
-const gLink = svg.append("g");
-const gNode = svg.append("g");
-
-const diagonal = linkHorizontal().x(d => d.y).y(d => d.x);
+//define function that listens to index.html 
+// doc select query input. event listener onSubmit
+// another function thats event handler
+// handler receives event from listener and manipulates
 
 //STEP 1: load data
 let fetchData = json('oneDaydata.json')
@@ -43,8 +32,30 @@ let fetchData = json('oneDaydata.json')
 
 //STEP 2: make async render function
 async function render(){
+
+  // constants for svg
+  let width = 500;
+  let margin = ({ top: 10, right: 120, bottom: 10, left: 40 });
+  let dy = 150;
+  let dx = 10;
+
+  const treeLayout = tree().nodeSize([dx, dy]);
+
+  const svg = select('svg');
+  console.log("svg",svg)
+  const gLink = svg.append("g");
+  const gNode = svg.append("g");
+
+  const diagonal = linkHorizontal().x(d => d.y).y(d => d.x);
+
+
   let root = await fetchData;
   console.log("line 47", root);
+
+  
+
+
+
 }
 render();
 
@@ -52,7 +63,7 @@ render();
 
 //STEP 3: create recursive function to generate tree
 function update(source, root){
-  console.log("update");
+  
 
   //duration: needed for transition
   const nodes = root.descendants().reverse();
@@ -60,6 +71,7 @@ function update(source, root){
 
   //from root passed in, make correct layout
   treeLayout(root);
+  console.log("update tree", root);
 
   //define some root attributes
   root.x0 = dy / 2;
@@ -101,7 +113,8 @@ function update(source, root){
       d.children = d.children ? null : d._children;
       // recursively calling this func
       // need to reformat
-      update(d, root);
+      console.log("node enter")
+      update(d);
     });
 
   nodeEnter.append("circle")

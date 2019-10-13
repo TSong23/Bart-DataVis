@@ -40361,26 +40361,11 @@ __webpack_require__(/*! babel-polyfill */ "./node_modules/babel-polyfill/lib/ind
 
 var date = '2019-01-01';
 var hour = '11';
-var origin = 'MONT'; //STEP 1: constants needed
-
-var width = 500;
-var margin = {
-  top: 10,
-  right: 120,
-  bottom: 10,
-  left: 40
-};
-var dy = 150;
-var dx = 10;
-var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().nodeSize([dx, dy]);
-var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
-var gLink = svg.append("g");
-var gNode = svg.append("g");
-var diagonal = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
-  return d.y;
-}).y(function (d) {
-  return d.x;
-}); //STEP 1: load data
+var origin = 'MONT'; //define function that listens to index.html 
+// doc select query input. event listener onSubmit
+// another function thats event handler
+// handler receives event from listener and manipulates
+//STEP 1: load data
 
 var fetchData = Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
   var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data["".concat(date)]["".concat(hour)]["".concat(origin)]);
@@ -40404,19 +40389,39 @@ function _render() {
   _render = _asyncToGenerator(
   /*#__PURE__*/
   regeneratorRuntime.mark(function _callee() {
-    var root;
+    var width, margin, dy, dx, treeLayout, svg, gLink, gNode, diagonal, root;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            _context.next = 2;
+            // constants for svg
+            width = 500;
+            margin = {
+              top: 10,
+              right: 120,
+              bottom: 10,
+              left: 40
+            };
+            dy = 150;
+            dx = 10;
+            treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().nodeSize([dx, dy]);
+            svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
+            console.log("svg", svg);
+            gLink = svg.append("g");
+            gNode = svg.append("g");
+            diagonal = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
+              return d.y;
+            }).y(function (d) {
+              return d.x;
+            });
+            _context.next = 12;
             return fetchData;
 
-          case 2:
+          case 12:
             root = _context.sent;
             console.log("line 47", root);
 
-          case 4:
+          case 14:
           case "end":
             return _context.stop();
         }
@@ -40429,12 +40434,12 @@ function _render() {
 render(); //STEP 3: create recursive function to generate tree
 
 function update(source, root) {
-  console.log("update"); //duration: needed for transition
-
+  //duration: needed for transition
   var nodes = root.descendants().reverse();
   var links = root.links(); //from root passed in, make correct layout
 
-  treeLayout(root); //define some root attributes
+  treeLayout(root);
+  console.log("update tree", root); //define some root attributes
 
   root.x0 = dy / 2;
   root.y0 = 0;
@@ -40470,7 +40475,8 @@ function update(source, root) {
     d.children = d.children ? null : d._children; // recursively calling this func
     // need to reformat
 
-    update(d, root);
+    console.log("node enter");
+    update(d);
   });
   nodeEnter.append("circle").attr("r", 2.5).attr("fill", function (d) {
     return d._children ? "#555" : "#999";
