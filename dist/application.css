@@ -1,14 +1,33 @@
 body {
-  position: fixed;
-  left: 0;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  margin: 100px, 100px, 100px, 100px;
-  overflow: scroll;
-  color: lightskyblue;
-  background-color: rgb(255, 255, 255);
+  margin: 0% 3% 0% 3%;
+  display: flex;
+  flex-direction: column;
+  background-color: black;
+  
 }
+
+.header {
+  min-height: 20%;
+  background-color: lightskyblue;
+}
+
+.dataForm {
+  min-height: 15%;
+  background-color: lightgray;
+}
+
+.svgContainer {
+  min-height: 60%;
+  background-color: antiquewhite;
+}
+
+
+
+
+
+
+
+
 
 path {
   fill: none;

@@ -40359,23 +40359,22 @@ __webpack_require__(/*! babel-polyfill */ "./node_modules/babel-polyfill/lib/ind
 
  //STEP 0: Get user input
 
-var date = '2019-01-01';
-var hour = '11';
-var origin = 'MONT'; //define function that listens to index.html 
+var date = '2019-01-15';
+var hour = '8';
+var origin = 'DALY'; //define function that listens to index.html 
 // doc select query input. event listener onSubmit
 // another function thats event handler
 // handler receives event from listener and manipulates
 //STEP 1: load data
 
-var fetchData = Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('oneDaydata.json').then(function (data) {
-  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data["".concat(date)]["".concat(hour)]["".concat(origin)]);
-  root.x0 = dy / 2;
-  root.y0 = 0;
-  root.descendants().forEach(function (d, i) {
-    d.id = i;
-    d._children = d.children;
-    if (d.depth && d.data.name.length !== 7) d.children = null;
-  }); // call the recursive function here?
+var fetchData = Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('janData.json').then(function (data) {
+  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data["".concat(date)]["".concat(hour)]["".concat(origin)]); // root.x0 = dy / 2;
+  // root.y0 = 0;
+  // root.descendants().forEach((d, i) => {
+  //   d.id = i;
+  //   d._children = d.children;
+  //   if (d.depth && d.data.name.length !== 7) d.children = null;
+  // call the recursive function here?
 
   return root; // console.log("root", root) //returns the root
   // update(root, root)

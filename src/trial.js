@@ -4,31 +4,31 @@ import { select, json, tree, hierarchy, linkHorizontal, zoom, event } from 'd3';
 
 
 //STEP 0: Get user input
-let date = '2019-01-01';
-let hour = '11';
-let origin = 'MONT';
+let date = '2019-01-15';
+let hour = '8';
+let origin = 'DALY';
 //define function that listens to index.html 
 // doc select query input. event listener onSubmit
 // another function thats event handler
 // handler receives event from listener and manipulates
 
 //STEP 1: load data
-let fetchData = json('oneDaydata.json')
+let fetchData = json('janData.json')
   .then(data => {
     let root = hierarchy(data[`${date}`][`${hour}`][`${origin}`]);
-    root.x0 = dy / 2;
-    root.y0 = 0;
-    root.descendants().forEach((d, i) => {
-      d.id = i;
-      d._children = d.children;
-      if (d.depth && d.data.name.length !== 7) d.children = null;
-    });
+    // root.x0 = dy / 2;
+    // root.y0 = 0;
+    // root.descendants().forEach((d, i) => {
+    //   d.id = i;
+    //   d._children = d.children;
+    //   if (d.depth && d.data.name.length !== 7) d.children = null;
+  
     // call the recursive function here?
     return root;
 
     // console.log("root", root) //returns the root
     // update(root, root)
-  })
+  });
 
 //STEP 2: make async render function
 async function render(){

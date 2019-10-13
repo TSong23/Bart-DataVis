@@ -14,7 +14,10 @@ async function fetchData(){
   data = await json('oneDaydata.json');
 }
 
-
+document.getElementById('dataForm').onsubmit = function () {
+  console.log(document.getElementById('searchTerm').value);
+  return false;
+};
 
 
 

@@ -8,17 +8,35 @@
     <link rel="stylesheet" href="application.css" type="text/css">
   </head>
   <body>
-    <label for="date">Date:</label>    
-    <input type="date" id="date" 
-           min="2019-01-01" max="2019-08-31">
-    
-    <label for="hour">Hour:</label>
-    <input type="time" id="hour" value="00:00:00"
-           min="00:00" max="23:00" step="3600">   
 
-    <div id="svgcontainer">
+    <div class="header">
+      <h3>GitHub, LinkedIn, Page Title</h3>
     </div>
-    <script language="javascript">
+
+    <div class="dataForm">
+      <h3>Filler</h3>
+      <form> 
+        <label for="date">Date:</label>    
+        <input type="date" id="date" 
+              min="2019-01-01" max="2019-01-02">
+        
+        <label for="hour">Hour:</label>
+        <input type="time" id="hour" value="00:00:00"
+              min="00:00" max="23:00" step="3600"> 
+        <select name="" id="bartStationSelect">
+          <option hidden value="">Station</option>
+          
+        </select>
+        <input type="submit">
+      </form>
+    </div>
+        
+
+    <div class="svgContainer">
+     <h3>Filler svgContainer</h3>
+    </div>
+
+    <!-- <script language="javascript">
       var width = 300;
       var height = 300;
       var svg = d3.select("#svgcontainer")
@@ -32,7 +50,7 @@
         .attr("y2", 200)
         .style("stroke", "rgb(255,0,0)")
         .style("stroke-width", 2);
-    </script>
+    </script> -->
     <script src="bundle.js"></script>
 
   </body>
