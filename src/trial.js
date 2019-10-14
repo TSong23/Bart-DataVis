@@ -9,16 +9,27 @@ import { select, json, tree, hierarchy, linkHorizontal, zoom, event } from 'd3';
 // let hour = '8';
 // let origin = 'DALY';
 
+class BartDataVis {
+  constructor () {
+    this.data = json('janData.json');
+  }
+}
+
+
 document.addEventListener('DOMContentLoaded', () => {
   console.log("document loaded");
-  document.getElementById("bartDataForm").value;
+  document.getElementById("bartFormSubmit").onclick = () => {
+    handleSubmit();
+  };
   
 })
 
 let date, hour, origin;
 
 
-function handleSubmit() {
+function handleSubmit(e) {
+  e.preventDefault();
+  debugger
   console.log("handleSubmit")
   inputValidation();
   console.log("date", date, "hour", hour, "origin", origin);
@@ -31,7 +42,7 @@ function inputValidation(){
   
 }
 
-document.getElementById('bartDataForm').addEventListener('submit', handleSubmit);
+// document.getElementById('bartDataForm').addEventListener('submit', handleSubmit);
 
 
 //define function that listens to index.html 

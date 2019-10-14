@@ -40339,227 +40339,82 @@ module.exports = g;
 
 /***/ }),
 
-/***/ "./src/trial.js":
-/*!**********************!*\
-  !*** ./src/trial.js ***!
-  \**********************/
+/***/ "./src/trial2.js":
+/*!***********************!*\
+  !*** ./src/trial2.js ***!
+  \***********************/
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
 __webpack_require__(/*! babel-core/register */ "./node_modules/babel-core/register.js");
 
 __webpack_require__(/*! babel-polyfill */ "./node_modules/babel-polyfill/lib/index.js");
 
- //STEP 0: Get user input
-// let date = '2019-01-15';
-// let hour = '8';
-// let origin = 'DALY';
+
+
+var BartDataVis =
+/*#__PURE__*/
+function () {
+  function BartDataVis() {
+    _classCallCheck(this, BartDataVis);
+
+    this.data;
+    this.test;
+    this.fetchData = this.fetchData.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  _createClass(BartDataVis, [{
+    key: "fetchData",
+    value: function fetchData() {
+      return this.data = Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('janData.json').then(function (data) {
+        return data;
+      });
+    }
+  }, {
+    key: "handleSubmit",
+    value: function handleSubmit(e) {
+      e.preventDefault();
+      console.log("handle submit");
+      this.test = "test success";
+    }
+  }]);
+
+  return BartDataVis;
+}();
 
 document.addEventListener('DOMContentLoaded', function () {
-  console.log("document loaded");
-  document.getElementById("bartDataForm").value;
+  // initialize bartDataVis
+  // load the data
+  var bartDataVis = new BartDataVis();
+  bartDataVis.fetchData().then(function (data) {
+    //everything else has to go inside .then
+    console.log("bartDataVis", data); //listen for user input
+
+    document.getElementById("bartFormSubmit").onclick = bartDataVis.handleSubmit;
+  });
 });
-var date, hour, origin;
-
-function handleSubmit() {
-  console.log("handleSubmit");
-  inputValidation();
-  console.log("date", date, "hour", hour, "origin", origin);
-}
-
-function inputValidation() {
-  date = document.getElementById("bartDate").value;
-  hour = document.getElementById("bartHour").value;
-  origin = document.getElementById("bartOrigin").value;
-}
-
-document.getElementById('bartDataForm').addEventListener('submit', handleSubmit); //define function that listens to index.html 
-// doc select query input. event listener onSubmit
-// another function thats event handler
-// handler receives event from listener and manipulates
-//STEP 1: load data
-
-var fetchData = Object(d3__WEBPACK_IMPORTED_MODULE_0__["json"])('janData.json').then(function (data) {
-  var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(data["".concat(date)]["".concat(hour)]["".concat(origin)]); // root.x0 = dy / 2;
-  // root.y0 = 0;
-  // root.descendants().forEach((d, i) => {
-  //   d.id = i;
-  //   d._children = d.children;
-  //   if (d.depth && d.data.name.length !== 7) d.children = null;
-  // call the recursive function here?
-
-  return root; // console.log("root", root) //returns the root
-  // update(root, root)
-}); //STEP 2: make async render function
-
-function render() {
-  return _render.apply(this, arguments);
-}
-
-function _render() {
-  _render = _asyncToGenerator(
-  /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee() {
-    var width, margin, dy, dx, treeLayout, svg, gLink, gNode, diagonal, root;
-    return regeneratorRuntime.wrap(function _callee$(_context) {
-      while (1) {
-        switch (_context.prev = _context.next) {
-          case 0:
-            // constants for svg
-            width = 500;
-            margin = {
-              top: 10,
-              right: 120,
-              bottom: 10,
-              left: 40
-            };
-            dy = 150;
-            dx = 10;
-            treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().nodeSize([dx, dy]);
-            svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
-            console.log("svg", svg);
-            gLink = svg.append("g");
-            gNode = svg.append("g");
-            diagonal = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
-              return d.y;
-            }).y(function (d) {
-              return d.x;
-            });
-            _context.next = 12;
-            return fetchData;
-
-          case 12:
-            root = _context.sent;
-            console.log("line 47", root);
-
-          case 14:
-          case "end":
-            return _context.stop();
-        }
-      }
-    }, _callee);
-  }));
-  return _render.apply(this, arguments);
-}
-
-render(); //STEP 3: create recursive function to generate tree
-
-function update(source, root) {
-  //duration: needed for transition
-  var nodes = root.descendants().reverse();
-  var links = root.links(); //from root passed in, make correct layout
-
-  treeLayout(root);
-  console.log("update tree", root); //define some root attributes
-
-  root.x0 = dy / 2;
-  root.y0 = 0;
-  root.descendants().forEach(function (d, i) {
-    d.id = i;
-    d._children = d.children;
-    if (d.depth && d.data.name.length !== 7) d.children = null;
-  }); // chart render and transition logic
-
-  var left = root;
-  var right = root;
-  root.eachBefore(function (node) {
-    if (node.x < left.x) left = node;
-    if (node.x > right.x) right = node;
-  }); //height = leaf nodes height. duration = transition duraiton
-
-  var height = right.x - left.x + margin.top + margin.bottom;
-  var duration = d3__WEBPACK_IMPORTED_MODULE_0__["event"] && d3__WEBPACK_IMPORTED_MODULE_0__["event"].altKey ? 2500 : 250; // transition animation logic
-
-  var transition = svg.transition().duration(duration).attr("viewBox", [-margin.left, left.x - margin.top, width, height]).tween("resize", window.ResizeObserver ? null : function () {
-    return function () {
-      return svg.dispatch("toggle");
-    };
-  }); //update the nodes
-  // for all the nodes, parent is now defined as "g"
-
-  var node = gNode.selectAll("g").data(nodes, function (d) {
-    return d.id;
-  });
-  var nodeEnter = node.enter().append("g").attr("transform", function (d) {
-    return "translate(".concat(source.y0, ",").concat(source.x0, ")");
-  }).attr("fill-opacity", 0).attr("stroke-opacity", 0).on("click", function (d) {
-    d.children = d.children ? null : d._children; // recursively calling this func
-    // need to reformat
-
-    console.log("node enter");
-    update(d);
-  });
-  nodeEnter.append("circle").attr("r", 2.5).attr("fill", function (d) {
-    return d._children ? "#555" : "#999";
-  }).attr("stroke-width", 10);
-  nodeEnter.append("text").attr("dy", "0.31em").attr("x", function (d) {
-    return d._children ? -6 : 6;
-  }).attr("text-anchor", function (d) {
-    return d._children ? "end" : "start";
-  }).text(function (d) {
-    return d.data.name;
-  }).clone(true).lower().attr("stroke-linejoin", "round").attr("stroke-width", 3).attr("stroke", "white"); // Transition nodes to their new position.
-
-  var nodeUpdate = node.merge(nodeEnter).transition(transition).attr("transform", function (d) {
-    return "translate(".concat(d.y, ",").concat(d.x, ")");
-  }).attr("fill-opacity", 1).attr("stroke-opacity", 1); // Transition exiting nodes to the parent's new position.
-
-  var nodeExit = node.exit().transition(transition).remove().attr("transform", function (d) {
-    return "translate(".concat(source.y, ",").concat(source.x, ")");
-  }).attr("fill-opacity", 0).attr("stroke-opacity", 0); // Update the links…
-
-  var link = gLink.selectAll("path").data(links, function (d) {
-    return d.target.id;
-  }); // Enter any new links at the parent's previous position.
-
-  var linkEnter = link.enter().append("path").attr("d", function (d) {
-    var o = {
-      x: source.x0,
-      y: source.y0
-    };
-    return diagonal({
-      source: o,
-      target: o
-    });
-  }); // Transition links to their new position.
-
-  link.merge(linkEnter).transition(transition).attr("d", diagonal); // Transition exiting nodes to the parent's new position.
-
-  link.exit().transition(transition).remove().attr("d", function (d) {
-    var o = {
-      x: source.x,
-      y: source.y
-    };
-    return diagonal({
-      source: o,
-      target: o
-    });
-  }); // Stash the old positions for transition.
-
-  root.eachBefore(function (d) {
-    d.x0 = d.x;
-    d.y0 = d.y;
-  });
-}
 
 /***/ }),
 
 /***/ 0:
-/*!*******************************************!*\
-  !*** multi babel-polyfill ./src/trial.js ***!
-  \*******************************************/
+/*!********************************************!*\
+  !*** multi babel-polyfill ./src/trial2.js ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(/*! babel-polyfill */"./node_modules/babel-polyfill/lib/index.js");
-module.exports = __webpack_require__(/*! ./src/trial.js */"./src/trial.js");
+module.exports = __webpack_require__(/*! ./src/trial2.js */"./src/trial2.js");
 
 
 /***/ })
