@@ -3,10 +3,37 @@ require("babel-polyfill");
 import { select, json, tree, hierarchy, linkHorizontal, zoom, event } from 'd3';
 
 
+
 //STEP 0: Get user input
-let date = '2019-01-15';
-let hour = '8';
-let origin = 'DALY';
+// let date = '2019-01-15';
+// let hour = '8';
+// let origin = 'DALY';
+
+document.addEventListener('DOMContentLoaded', () => {
+  console.log("document loaded");
+  document.getElementById("bartDataForm").value;
+  
+})
+
+let date, hour, origin;
+
+
+function handleSubmit() {
+  console.log("handleSubmit")
+  inputValidation();
+  console.log("date", date, "hour", hour, "origin", origin);
+}
+
+function inputValidation(){
+  date = document.getElementById("bartDate").value;
+  hour = document.getElementById("bartHour").value; 
+  origin = document.getElementById("bartOrigin").value; 
+  
+}
+
+document.getElementById('bartDataForm').addEventListener('submit', handleSubmit);
+
+
 //define function that listens to index.html 
 // doc select query input. event listener onSubmit
 // another function thats event handler

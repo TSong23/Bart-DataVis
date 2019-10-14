@@ -40358,10 +40358,29 @@ __webpack_require__(/*! babel-core/register */ "./node_modules/babel-core/regist
 __webpack_require__(/*! babel-polyfill */ "./node_modules/babel-polyfill/lib/index.js");
 
  //STEP 0: Get user input
+// let date = '2019-01-15';
+// let hour = '8';
+// let origin = 'DALY';
 
-var date = '2019-01-15';
-var hour = '8';
-var origin = 'DALY'; //define function that listens to index.html 
+document.addEventListener('DOMContentLoaded', function () {
+  console.log("document loaded");
+  document.getElementById("bartDataForm").value;
+});
+var date, hour, origin;
+
+function handleSubmit() {
+  console.log("handleSubmit");
+  inputValidation();
+  console.log("date", date, "hour", hour, "origin", origin);
+}
+
+function inputValidation() {
+  date = document.getElementById("bartDate").value;
+  hour = document.getElementById("bartHour").value;
+  origin = document.getElementById("bartOrigin").value;
+}
+
+document.getElementById('bartDataForm').addEventListener('submit', handleSubmit); //define function that listens to index.html 
 // doc select query input. event listener onSubmit
 // another function thats event handler
 // handler receives event from listener and manipulates

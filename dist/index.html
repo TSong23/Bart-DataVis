@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="application.css" type="text/css">
+    <script src="bundle.js"></script>
   </head>
   <body>
 
@@ -15,20 +16,27 @@
 
     <div class="dataForm">
       <h3>Filler</h3>
-      <form> 
-        <label for="date">Date:</label>    
-        <input type="date" id="date" 
+      <form id="bartDataForm"> 
+        <label for="bartDate">Date:</label>    
+        <input type="date" id="bartDate" 
               min="2019-01-01" max="2019-01-02">
         
-        <label for="hour">Hour:</label>
-        <input type="time" id="hour" value="00:00:00"
+        <label for="bartHour">Hour:</label>
+        <input type="time" id="bartHour" value="00:00:00"
               min="00:00" max="23:00" step="3600"> 
-        <select name="" id="bartStationSelect">
+        <select name="" id="bartOrigin">
           <option hidden value="">Station</option>
           
         </select>
-        <input type="submit">
+        <input id="bartFormSubmit" type="submit" >
       </form>
+      <!-- <script>
+        // function testSubmit(e) {
+        //   e.preventDefault();
+        //   console.log("hanlde submit html");
+        // }
+        document.getElementById('bartDataForm').addEventListener('submit', handleSubmit);
+      </script> -->
     </div>
         
 
@@ -36,7 +44,16 @@
      <h3>Filler svgContainer</h3>
     </div>
 
-    <!-- <script language="javascript">
+    
+    
+    <!-- <script src="bundle.js"></script> -->
+  </body>
+</html>
+
+
+
+
+<!-- <script language="javascript">
       var width = 300;
       var height = 300;
       var svg = d3.select("#svgcontainer")
@@ -51,7 +68,3 @@
         .style("stroke", "rgb(255,0,0)")
         .style("stroke-width", 2);
     </script> -->
-    <script src="bundle.js"></script>
-
-  </body>
-</html>
