@@ -40425,6 +40425,7 @@ function () {
   }, {
     key: "render",
     value: function render() {
+      // define constants needed for svg
       var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
       var width = document.body.clientWidth;
       var height = document.body.clientHeight;
@@ -40441,9 +40442,27 @@ function () {
       var g = zoomG.append('g').attr('tranform', "translate(".concat(margin.left, ", ").concat(margin.top, ")"));
       svg.call(Object(d3__WEBPACK_IMPORTED_MODULE_0__["zoom"])().on('zoom', function () {
         g.attr('transform', d3__WEBPACK_IMPORTED_MODULE_0__["event"].transform);
-      }));
+      })); // set up the root node, links, path, 
+
       var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(this.data[this.date][this.hour][this.origin]);
+      var links = treeLayout(root).links();
       console.log("root", root);
+      console.log("links", links);
+      var linkPathGenerator = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
+        return d.y;
+      }).y(function (d) {
+        return d.x;
+      });
+      g.selectAll('path').data(links).enter().append('path').attr('d', linkPathGenerator);
+      g.append("circle").attr("r", 2.5);
+      g.selectAll('text').data(root.descendants()).enter().append('text').attr('x', function (d) {
+        return d.y;
+      }).attr('y', function (d) {
+        return d.x;
+      }).attr('dy', '0.32em') // .attr('text-anchor',d => d.children ? 'middle' : 'start')
+      .text(function (d) {
+        return d.children ? d.data.name : "".concat(d.data.name, ": ").concat(d.data.value);
+      });
     }
   }]);
 

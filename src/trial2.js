@@ -53,6 +53,7 @@ class BartDataVis {
   }
 
   render(){
+    // define constants needed for svg
     const svg = select('svg');
     const width = document.body.clientWidth;
     const height = document.body.clientHeight;
@@ -74,9 +75,32 @@ class BartDataVis {
     svg.call(zoom().on('zoom', () => {
       g.attr('transform', event.transform);
     }));
-    const root = hierarchy(this.data[this.date][this.hour][this.origin]);
-    console.log("root", root);
 
+    // set up the root node, links, path, 
+    const root = hierarchy(this.data[this.date][this.hour][this.origin]);
+    const links = treeLayout(root).links();
+
+    console.log("root", root);
+    console.log("links", links);
+    
+    const linkPathGenerator = linkHorizontal()
+      .x(d => d.y)
+      .y(d =>d.x);
+
+    g.selectAll('path').data(links)
+      .enter().append('path')
+        .attr('d', linkPathGenerator);
+
+    g.append("circle")
+      .attr("r", 2.5);
+
+    g.selectAll('text').data(root.descendants())
+      .enter().append('text')
+        .attr('x', d => d.y)
+        .attr('y', d => d.x)  
+        .attr('dy', '0.32em')  
+        // .attr('text-anchor',d => d.children ? 'middle' : 'start')
+      .text(d => d.children ? d.data.name : `${d.data.name}: ${d.data.value}`)
   }
 }
 
