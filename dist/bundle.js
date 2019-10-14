@@ -40400,9 +40400,10 @@ function () {
       var formOrigin = document.getElementById("bartOrigin").value;
 
       if (formDate === "" || formHour === "" || formOrigin === "") {
-        console.log("inputValidation working");
+        console.log("inputValidation not passed");
       } else {
-        //run functions to generate the graph
+        console.log("validation passed"); //run functions to generate the graph
+
         this.date = formDate;
         this.hour = formHour;
         this.origin = formOrigin;

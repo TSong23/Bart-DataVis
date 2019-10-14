@@ -32,8 +32,9 @@ class BartDataVis {
     let formOrigin = document.getElementById("bartOrigin").value;
     
     if ( formDate === "" || formHour === "" || formOrigin === ""){
-      console.log("inputValidation working");
+      console.log("inputValidation not passed");
     } else {
+      console.log("validation passed")
       //run functions to generate the graph
       this.date = formDate; 
       this.hour = formHour;
