@@ -6,8 +6,14 @@ class BartDataVis {
   constructor() {
     this.data;
     this.test;
+    this.date;
+    this.hour;
+    this.origin;
+
     this.fetchData = this.fetchData.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.inputValidation = this.inputValidation.bind(this);
+    this.render = this.render.bind(this);
   }
 
   fetchData(){
@@ -20,15 +26,27 @@ class BartDataVis {
   }
 
   inputValidation() {
-    let date = document.getElementById("bartDate").value;
-    let hour = document.getElementById("bartHour").value;
-    let origin = document.getElementById("bartOrigin").value;
-  console.log("date", date);
-  console.log("hour", hour);
-  console.log("origin", origin);
+    // date, hour, origin needs to be formatted
+    let formDate = document.getElementById("bartDate").value;
+    let formHour = document.getElementById("bartHour").value;
+    let formOrigin = document.getElementById("bartOrigin").value;
+    
+    if ( formDate === "" || formHour === "" || formOrigin === ""){
+      console.log("inputValidation working");
+    } else {
+      //run functions to generate the graph
+      this.date = formDate; 
+      this.hour = formHour;
+      this.origin = formOrigin;
+      this.render();
+    }
+  }
+
+  render(){
+
+  }
 }
 
-}
 
 document.addEventListener('DOMContentLoaded', () => {
   // initialize bartDataVis

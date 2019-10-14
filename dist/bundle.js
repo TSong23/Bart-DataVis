@@ -40369,8 +40369,13 @@ function () {
 
     this.data;
     this.test;
+    this.date;
+    this.hour;
+    this.origin;
     this.fetchData = this.fetchData.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.inputValidation = this.inputValidation.bind(this);
+    this.render = this.render.bind(this);
   }
 
   _createClass(BartDataVis, [{
@@ -40389,13 +40394,24 @@ function () {
   }, {
     key: "inputValidation",
     value: function inputValidation() {
-      var date = document.getElementById("bartDate").value;
-      var hour = document.getElementById("bartHour").value;
-      var origin = document.getElementById("bartOrigin").value;
-      console.log("date", date);
-      console.log("hour", hour);
-      console.log("origin", origin);
+      // date, hour, origin needs to be formatted
+      var formDate = document.getElementById("bartDate").value;
+      var formHour = document.getElementById("bartHour").value;
+      var formOrigin = document.getElementById("bartOrigin").value;
+
+      if (formDate === "" || formHour === "" || formOrigin === "") {
+        console.log("inputValidation working");
+      } else {
+        //run functions to generate the graph
+        this.date = formDate;
+        this.hour = formHour;
+        this.origin = formOrigin;
+        this.render();
+      }
     }
+  }, {
+    key: "render",
+    value: function render() {}
   }]);
 
   return BartDataVis;
