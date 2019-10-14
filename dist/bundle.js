@@ -40410,10 +40410,11 @@ function () {
         return false;
       } else {
         console.log("validation passed");
+        console.log("this.data", this.data);
         formHour = formHour.split(":")[0];
 
-        if (formHour === "00") {
-          formHour = "0";
+        if (formHour.charAt(0) === '0') {
+          formHour = formHour.substr(1);
         }
 
         this.date = formDate;
@@ -40437,7 +40438,9 @@ function () {
       };
       var innerWidth = width - margin.left - margin.right;
       var innerHeight = height - margin.top - margin.bottom;
-      var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().size([innerHeight, innerWidth]);
+      var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().size([innerHeight, innerWidth]); //before drawing the lines and nodes, clear svg
+
+      Object(d3__WEBPACK_IMPORTED_MODULE_0__["selectAll"])("g > *").remove();
       var zoomG = svg.attr('width', width).attr('height', height).append('g');
       var g = zoomG.append('g').attr('tranform', "translate(".concat(margin.left, ", ").concat(margin.top, ")"));
       svg.call(Object(d3__WEBPACK_IMPORTED_MODULE_0__["zoom"])().on('zoom', function () {

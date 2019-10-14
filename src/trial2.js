@@ -1,6 +1,6 @@
 require("babel-core/register");
 require("babel-polyfill");
-import { select, json, tree, hierarchy, linkHorizontal, zoom, event } from 'd3';
+import { select, selectAll, json, tree, hierarchy, linkHorizontal, zoom, event } from 'd3';
 
 class BartDataVis {
   constructor() {
@@ -40,9 +40,10 @@ class BartDataVis {
       return false;
     } else {
       console.log("validation passed")
+      console.log("this.data", this.data);
       formHour = formHour.split(":")[0];
-      if (formHour === "00"){
-        formHour = "0";
+      if (formHour.charAt(0) === '0'){
+        formHour = formHour.substr(1);
       }
 
       this.date = formDate; 
@@ -64,6 +65,9 @@ class BartDataVis {
 
     const treeLayout = tree().size([innerHeight, innerWidth]);
 
+    //before drawing the lines and nodes, clear svg
+    selectAll("g > *").remove();
+
     const zoomG = svg 
       .attr('width', width)
       .attr('height', height)
@@ -77,8 +81,8 @@ class BartDataVis {
     }));
 
     // set up the root node, links, path, 
-    const root = hierarchy(this.data[this.date][this.hour][this.origin]);
-    const links = treeLayout(root).links();
+    let root = hierarchy(this.data[this.date][this.hour][this.origin]);
+    let links = treeLayout(root).links();
 
     console.log("root", root);
     console.log("links", links);
