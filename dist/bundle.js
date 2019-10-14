@@ -40389,7 +40389,12 @@ function () {
     key: "handleSubmit",
     value: function handleSubmit(e) {
       e.preventDefault();
-      this.inputValidation();
+
+      if (this.inputValidation()) {
+        this.render();
+      }
+
+      ;
     }
   }, {
     key: "inputValidation",
@@ -40400,19 +40405,39 @@ function () {
       var formOrigin = document.getElementById("bartOrigin").value;
 
       if (formDate === "" || formHour === "" || formOrigin === "") {
-        console.log("inputValidation not passed");
+        window.alert("Please fillout all fields");
+        return false;
       } else {
-        console.log("validation passed"); //run functions to generate the graph
-
+        console.log("validation passed");
         this.date = formDate;
         this.hour = formHour;
         this.origin = formOrigin;
-        this.render();
+        return true;
       }
     }
   }, {
     key: "render",
-    value: function render() {}
+    value: function render() {
+      console.log("render");
+      var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
+      var width = document.body.clientWidth;
+      var height = document.body.clientHeight;
+      var margin = {
+        top: 0,
+        right: 100,
+        bottom: 0,
+        left: 75
+      };
+      var innerWidth = width - margin.left - margin.right;
+      var innerHeight = height - margin.top - margin.bottom;
+      var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().size([innerHeight, innerWidth]);
+      var zoomG = svg.attr('width', width).attr('height', height).append('g');
+      var g = zoomG.append('g').attr('tranform', "translate(".concat(margin.left, ", ").concat(margin.top, ")"));
+      svg.call(Object(d3__WEBPACK_IMPORTED_MODULE_0__["zoom"])().on('zoom', function () {
+        g.attr('transform', d3__WEBPACK_IMPORTED_MODULE_0__["event"].transform);
+      }));
+      var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(this.data[this.date][this.hour][this.origin]);
+    }
   }]);
 
   return BartDataVis;
@@ -40424,7 +40449,8 @@ document.addEventListener('DOMContentLoaded', function () {
   var bartDataVis = new BartDataVis();
   bartDataVis.fetchData().then(function (data) {
     //everything else has to go inside .then
-    console.log("bartDataVis", data); //listen for user input
+    bartDataVis.data = data; // this.data = data;
+    //listen for user input
 
     document.getElementById("bartFormSubmit").onclick = bartDataVis.handleSubmit;
   });

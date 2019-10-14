@@ -22,7 +22,9 @@ class BartDataVis {
 
   handleSubmit(e){
     e.preventDefault();
-    this.inputValidation();
+    if (this.inputValidation()){
+      this.render();
+    };
   }
 
   inputValidation() {
@@ -32,19 +34,42 @@ class BartDataVis {
     let formOrigin = document.getElementById("bartOrigin").value;
     
     if ( formDate === "" || formHour === "" || formOrigin === ""){
-      console.log("inputValidation not passed");
+      window.alert("Please fillout all fields");
+      return false;
     } else {
       console.log("validation passed")
-      //run functions to generate the graph
       this.date = formDate; 
       this.hour = formHour;
       this.origin = formOrigin;
-      this.render();
+      return true;
     }
   }
 
   render(){
+    console.log("render");
+    const svg = select('svg');
+    const width = document.body.clientWidth;
+    const height = document.body.clientHeight;
 
+    const margin = { top: 0, right: 100, bottom: 0, left: 75 };
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+
+    const treeLayout = tree().size([innerHeight, innerWidth]);
+
+    const zoomG = svg 
+      .attr('width', width)
+      .attr('height', height)
+      .append('g');
+
+    const g = zoomG.append('g')
+      .attr('tranform', `translate(${margin.left}, ${margin.top})`);
+
+    svg.call(zoom().on('zoom', () => {
+      g.attr('transform', event.transform);
+    }));
+    const root = hierarchy(this.data[this.date][this.hour][this.origin]);
+    
   }
 }
 
@@ -52,12 +77,12 @@ class BartDataVis {
 document.addEventListener('DOMContentLoaded', () => {
   // initialize bartDataVis
   // load the data
-
   const bartDataVis = new BartDataVis();
   bartDataVis.fetchData()
   .then(data => {
     //everything else has to go inside .then
-    console.log("bartDataVis", data)
+    bartDataVis.data = data;
+    // this.data = data;
     
     //listen for user input
     document.getElementById("bartFormSubmit").onclick = bartDataVis.handleSubmit;
