@@ -17,7 +17,8 @@ class BartDataVis {
   }
 
   fetchData(){
-    return this.data = json('janData.json').then(data => {return data});
+    return this.data = json('janData.json').then(data => {
+      return data});
   }
 
   handleSubmit(e){
@@ -28,6 +29,7 @@ class BartDataVis {
   }
 
   inputValidation() {
+    // confirm if inputs are valid, then
     // date, hour, origin needs to be formatted
     let formDate = document.getElementById("bartDate").value;
     let formHour = document.getElementById("bartHour").value;
@@ -38,6 +40,11 @@ class BartDataVis {
       return false;
     } else {
       console.log("validation passed")
+      formHour = formHour.split(":")[0];
+      if (formHour === "00"){
+        formHour = "0";
+      }
+
       this.date = formDate; 
       this.hour = formHour;
       this.origin = formOrigin;
@@ -46,7 +53,6 @@ class BartDataVis {
   }
 
   render(){
-    console.log("render");
     const svg = select('svg');
     const width = document.body.clientWidth;
     const height = document.body.clientHeight;
@@ -69,22 +75,20 @@ class BartDataVis {
       g.attr('transform', event.transform);
     }));
     const root = hierarchy(this.data[this.date][this.hour][this.origin]);
-    
+    console.log("root", root);
+
   }
 }
 
 
 document.addEventListener('DOMContentLoaded', () => {
-  // initialize bartDataVis
+  // load the styles and links
   // load the data
+  // then set data and wait for user to submit 
   const bartDataVis = new BartDataVis();
   bartDataVis.fetchData()
   .then(data => {
-    //everything else has to go inside .then
     bartDataVis.data = data;
-    // this.data = data;
-    
-    //listen for user input
     document.getElementById("bartFormSubmit").onclick = bartDataVis.handleSubmit;
   });
 });

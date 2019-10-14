@@ -40399,6 +40399,7 @@ function () {
   }, {
     key: "inputValidation",
     value: function inputValidation() {
+      // confirm if inputs are valid, then
       // date, hour, origin needs to be formatted
       var formDate = document.getElementById("bartDate").value;
       var formHour = document.getElementById("bartHour").value;
@@ -40409,6 +40410,12 @@ function () {
         return false;
       } else {
         console.log("validation passed");
+        formHour = formHour.split(":")[0];
+
+        if (formHour === "00") {
+          formHour = "0";
+        }
+
         this.date = formDate;
         this.hour = formHour;
         this.origin = formOrigin;
@@ -40418,7 +40425,6 @@ function () {
   }, {
     key: "render",
     value: function render() {
-      console.log("render");
       var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
       var width = document.body.clientWidth;
       var height = document.body.clientHeight;
@@ -40437,6 +40443,7 @@ function () {
         g.attr('transform', d3__WEBPACK_IMPORTED_MODULE_0__["event"].transform);
       }));
       var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(this.data[this.date][this.hour][this.origin]);
+      console.log("root", root);
     }
   }]);
 
@@ -40444,14 +40451,12 @@ function () {
 }();
 
 document.addEventListener('DOMContentLoaded', function () {
-  // initialize bartDataVis
+  // load the styles and links
   // load the data
+  // then set data and wait for user to submit 
   var bartDataVis = new BartDataVis();
   bartDataVis.fetchData().then(function (data) {
-    //everything else has to go inside .then
-    bartDataVis.data = data; // this.data = data;
-    //listen for user input
-
+    bartDataVis.data = data;
     document.getElementById("bartFormSubmit").onclick = bartDataVis.handleSubmit;
   });
 });
