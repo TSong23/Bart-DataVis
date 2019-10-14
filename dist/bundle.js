@@ -40384,8 +40384,17 @@ function () {
     key: "handleSubmit",
     value: function handleSubmit(e) {
       e.preventDefault();
-      console.log("handle submit");
-      this.test = "test success";
+      this.inputValidation();
+    }
+  }, {
+    key: "inputValidation",
+    value: function inputValidation() {
+      var date = document.getElementById("bartDate").value;
+      var hour = document.getElementById("bartHour").value;
+      var origin = document.getElementById("bartOrigin").value;
+      console.log("date", date);
+      console.log("hour", hour);
+      console.log("origin", origin);
     }
   }]);
 

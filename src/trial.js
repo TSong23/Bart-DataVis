@@ -38,8 +38,7 @@ function handleSubmit(e) {
 function inputValidation(){
   date = document.getElementById("bartDate").value;
   hour = document.getElementById("bartHour").value; 
-  origin = document.getElementById("bartOrigin").value; 
-  
+  origin = document.getElementById("bartOrigin").value;   
 }
 
 // document.getElementById('bartDataForm').addEventListener('submit', handleSubmit);

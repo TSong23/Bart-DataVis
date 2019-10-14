@@ -16,9 +16,18 @@ class BartDataVis {
 
   handleSubmit(e){
     e.preventDefault();
-    console.log("handle submit");
-    this.test = "test success";
+    this.inputValidation();
   }
+
+  inputValidation() {
+    let date = document.getElementById("bartDate").value;
+    let hour = document.getElementById("bartHour").value;
+    let origin = document.getElementById("bartOrigin").value;
+  console.log("date", date);
+  console.log("hour", hour);
+  console.log("origin", origin);
+}
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
