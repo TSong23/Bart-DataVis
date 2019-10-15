@@ -3,92 +3,99 @@
   <head>
     <title>Bart Data Visualization</title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="application.css" type="text/css">
     <script src="bundle.js"></script>
   </head>
   <body>
 
-    <div class="header">
-      <h3>GitHub, LinkedIn, Page Title</h3>
-    </div>
+    <!-- Header -->
+    <header class="header">
+      <div class="header_info">
+        <h2>BART Ridership Visualization</h2>
+        <br>
+        <h3>
+          Explore how many people traveled from one station to another 
+          at each hour from January to September of 2019
+        </h3>
+      </div>
 
-    <div class="dataForm">
-      <h3>Filler</h3>
-      <form id="bartDataForm"> 
-        <label for="bartDate">Date:</label>    
-        <input type="date" id="bartDate" 
-              min="2019-01-01" max="2019-01-31">
-        
-        <label for="bartHour">Hour:</label>
-        <input type="time" id="bartHour" value="00:00:00"
-              min="00:00" max="23:00" step="3600"> 
-
-        <select name="" id="bartOrigin">
-          <option hidden value="">Station</option>
-          <option value="12TH">12th St. Oakland City Center</option>
-          <option value="16TH">16th St. Mission (SF)</option>
-          <option value="19TH">19th St. Oakland</option>
-          <option value="24TH">24th St. Mission (SF)</option>
-          <option value="ASHB">Ashby (Berkeley)</option>
-          <option value="ANTI">Antioch</option>
-          <option value="BALB">Balboa Park (SF)</option>
-          <option value="BAYF">Bay Fair (San Leandro)</option>
-          <option value="CAST">Castro Valley</option>
-          <option value="CIVC">Civic Center (SF)</option>
-          <option value="COLS">Coliseum</option>
-          <option value="COLM">Colma</option>
-          <option value="CONC">Concord</option>
-          <option value="DALY">Daly City</option>
-          <option value="DBRK">Downtown Berkeley</option>
-          <option value="DUBL">Dublin/Pleasanton</option>
-          <option value="DELN">El Cerrito del Norte</option>
-          <option value="PLZA">El Cerrito Plaza</option>
-          <option value="EMBR">Embarcadero (SF)</option>
-          <option value="FRMT">Fremont</option>
-          <option value="FTVL">Fruitvale (Oakland)</option>
-          <option value="GLEN">Glen Park (SF)</option>
-          <option value="HAYW">Hayward</option>
-          <option value="LAFY">Lafayette</option>
-          <option value="LAKE">Lake Merritt (Oakland)</option>
-          <option value="MCAR">MacArthur (Oakland)</option>
-          <option value="MLBR">Millbrae</option>
-          <option value="MONT">Montgomery St. (SF)</option>
-          <option value="NBRK">North Berkeley</option>
-          <option value="NCON">North Concord/Martinez</option>
-          <option value="OAKL">Oakland Int'l Airport</option>
-          <option value="ORIN">Orinda</option>
-          <option value="PITT">Pittsburg/Bay Point</option>
-          <option value="PCTR">Pittsburg Center</option>
-          <option value="PHIL">Pleasant Hill</option>
-          <option value="POWL">Powell St. (SF)</option>
-          <option value="RICH">Richmond</option>
-          <option value="ROCK">Rockridge (Oakland)</option>
-          <option value="SBRN">San Bruno</option>
-          <option value="SFIA">San Francisco Int'l Airport</option>
-          <option value="SANL">San Leandro</option>
-          <option value="SHAY">South Hayward</option>
-          <option value="SSAN">South San Francisco</option>
-          <option value="UCTY">Union City</option>
-          <option value="WSPR">Warm Springs</option>
-          <option value="WCRK">Walnut Creek</option>
-          <option value="WDUB">West Dublin</option>
-          <option value="WOAK">West Oakland</option>
-        </select>
-        <input id="bartFormSubmit" type="submit" >
+      <form id="bartDataForm">
+        <div class="form_date"> 
+          <label for="bartDate">Date:</label>
+          <input type="date" id="bartDate" min="2019-01-01" max="2019-01-31">
+        <!-- </div>
+        <div class="form_hour"> -->
+          <label for="bartHour">Hour:</label>
+          <input type="time" id="bartHour" value="00:00:00" min="00:00" max="23:00" step="3600">
+        </div>
+        <div>
+          <select name="" id="bartOrigin">
+            <option hidden value="">Station</option>
+            <option value="12TH">12th St. Oakland City Center</option>
+            <option value="16TH">16th St. Mission (SF)</option>
+            <option value="19TH">19th St. Oakland</option>
+            <option value="24TH">24th St. Mission (SF)</option>
+            <option value="ASHB">Ashby (Berkeley)</option>
+            <option value="ANTI">Antioch</option>
+            <option value="BALB">Balboa Park (SF)</option>
+            <option value="BAYF">Bay Fair (San Leandro)</option>
+            <option value="CAST">Castro Valley</option>
+            <option value="CIVC">Civic Center (SF)</option>
+            <option value="COLS">Coliseum</option>
+            <option value="COLM">Colma</option>
+            <option value="CONC">Concord</option>
+            <option value="DALY">Daly City</option>
+            <option value="DBRK">Downtown Berkeley</option>
+            <option value="DUBL">Dublin/Pleasanton</option>
+            <option value="DELN">El Cerrito del Norte</option>
+            <option value="PLZA">El Cerrito Plaza</option>
+            <option value="EMBR">Embarcadero (SF)</option>
+            <option value="FRMT">Fremont</option>
+            <option value="FTVL">Fruitvale (Oakland)</option>
+            <option value="GLEN">Glen Park (SF)</option>
+            <option value="HAYW">Hayward</option>
+            <option value="LAFY">Lafayette</option>
+            <option value="LAKE">Lake Merritt (Oakland)</option>
+            <option value="MCAR">MacArthur (Oakland)</option>
+            <option value="MLBR">Millbrae</option>
+            <option value="MONT">Montgomery St. (SF)</option>
+            <option value="NBRK">North Berkeley</option>
+            <option value="NCON">North Concord/Martinez</option>
+            <option value="OAKL">Oakland Int'l Airport</option>
+            <option value="ORIN">Orinda</option>
+            <option value="PITT">Pittsburg/Bay Point</option>
+            <option value="PCTR">Pittsburg Center</option>
+            <option value="PHIL">Pleasant Hill</option>
+            <option value="POWL">Powell St. (SF)</option>
+            <option value="RICH">Richmond</option>
+            <option value="ROCK">Rockridge (Oakland)</option>
+            <option value="SBRN">San Bruno</option>
+            <option value="SFIA">San Francisco Int'l Airport</option>
+            <option value="SANL">San Leandro</option>
+            <option value="SHAY">South Hayward</option>
+            <option value="SSAN">South San Francisco</option>
+            <option value="UCTY">Union City</option>
+            <option value="WSPR">Warm Springs</option>
+            <option value="WCRK">Walnut Creek</option>
+            <option value="WDUB">West Dublin</option>
+            <option value="WOAK">West Oakland</option>
+          </select>
+          <input id="bartFormSubmit" type="submit">
+        </div>
       </form>
-    </div>
-        
 
-    <div class="svgContainer">
-      <svg></svg>
-    </div>
+    </header>
 
-    
-    
-    <!-- <script src="bundle.js"></script> -->
-  </body>
+    <!-- Main -->
+    <div class="main">     
+      
+      <div class="svgContainer">
+        <svg></svg>
+      </div>
+    </div>
+      </body>
 </html>
 
 
