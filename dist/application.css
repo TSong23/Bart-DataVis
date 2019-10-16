@@ -17,8 +17,8 @@ section, summary, time, mark, audio, video {
 }
 
 h2 {
-  font-size: 30px;
-  color: rgb(223, 225, 226);
+  font-size: 36px;
+  color: rgb(206, 198, 185);
   font-weight: 599;
   margin: 0% 7% 0% 7%;
 }
@@ -38,67 +38,80 @@ body {
 .header {
   display: flex;
   flex-direction: column;
-  width: 30vw;
+  width: 35vw;
   height: 100vh;
   font-family: Verdana, Geneva, Tahoma, sans-serif; 
   background-image: url("../src/data/bg.jpg");
 }
 
 .header_info {
-  height: 25vh;
+  height: 30vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-/* .data_form {
-  height: 50vh;
+  align-content: right;
   justify-content: center;
-} */
+  padding-left: 10%;
+}
 
 #bartDataForm {
-  height: 50vh;
+  height: 40vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-start;
+  font-size: 18px;
+  font-weight: 599;
+  color: white;
 }
 
-.main{
-  background-color: lightgray;
+#bartFormDate {
+  background-color: transparent;
+  color: white;
+}
+
+#bartFormHour {
+  background-color: transparent;
+  color: white;
+}
+
+#bartFormOrigin {
+  background-color: transparent;
+  color: black;
+  font-weight: 599;
+}
+
+#bartFormSubmit {
+  background-color: transparent;
+  color: black;
+  font-weight: 599;
 }
 
 
-.svgContainer {
-  min-height: 60%;
-  background-color: antiquewhite;
+.form_date_hour {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin: 5% 10% 5% 0%;
+  padding-left: 100px;
 }
 
-svg{
-  height: 100%;
-  width: 100%;
+.form_station_submit{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  margin: 0% 25% 10% 0%;
+  padding-left: 100px;
+}
+
+.svg_container {
+  width: 65vw;
+  height: 100vh;
+  background-color: whtie;
+  overflow: hidden;
+}
+
+.svg_content {
+  display: inline-block;
 }
 
 
 
-
-
-
-
-
-path {
-  fill: none;
-  stroke: rgb(51, 165, 173);
-}
-
-text {
-  text-shadow:
-   -1px -1px 3px white,
-   -1px  1px 3px white,
-    1px -1px 3px white,
-    1px  1px 3px white;
-  pointer-events: none;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-  color: rgb(238, 250, 135);
-}

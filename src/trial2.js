@@ -1,6 +1,9 @@
 require("babel-core/register");
 require("babel-polyfill");
-import { select, selectAll, json, tree, hierarchy, linkHorizontal, zoom, event } from 'd3';
+import { select, selectAll, json, tree, hierarchy, linkHorizontal,
+  zoom, event, partition, getBBox, scaleOrdinal, quantize, interpolateRainbow,
+  arc} from 'd3';
+import {schemeCategory10} from 'd3-scale-chromatic';
 
 class BartDataVis {
   constructor() {
@@ -31,16 +34,14 @@ class BartDataVis {
   inputValidation() {
     // confirm if inputs are valid, then
     // date, hour, origin needs to be formatted
-    let formDate = document.getElementById("bartDate").value;
-    let formHour = document.getElementById("bartHour").value;
-    let formOrigin = document.getElementById("bartOrigin").value;
+    let formDate = document.getElementById("bartFormDate").value;
+    let formHour = document.getElementById("bartFormHour").value;
+    let formOrigin = document.getElementById("bartFormOrigin").value;
     
     if ( formDate === "" || formHour === "" || formOrigin === ""){
       window.alert("Please fillout all fields");
       return false;
     } else {
-      console.log("validation passed")
-      console.log("this.data", this.data);
       formHour = formHour.split(":")[0];
       if (formHour.charAt(0) === '0'){
         formHour = formHour.substr(1);
@@ -54,58 +55,58 @@ class BartDataVis {
   }
 
   render(){
-    // define constants needed for svg
-    const svg = select('svg');
-    const width = document.body.clientWidth;
-    const height = document.body.clientHeight;
-
-    const margin = { top: 0, right: 100, bottom: 0, left: 75 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
-
-    const treeLayout = tree().size([innerHeight, innerWidth]);
-
-    //before drawing the lines and nodes, clear svg
-    selectAll("g > *").remove();
-
-    const zoomG = svg 
-      .attr('width', width)
-      .attr('height', height)
-      .append('g');
-
-    const g = zoomG.append('g')
-      .attr('tranform', `translate(${margin.left}, ${margin.top})`);
-
-    svg.call(zoom().on('zoom', () => {
-      g.attr('transform', event.transform);
-    }));
-
-    // set up the root node, links, path, 
-    let root = hierarchy(this.data[this.date][this.hour][this.origin]);
-    let links = treeLayout(root).links();
-
-    console.log("root", root);
-    console.log("links", links);
     
-    const linkPathGenerator = linkHorizontal()
-      .x(d => d.y)
-      .y(d =>d.x);
+    let vWidth = 300;
+    let vHeight = 300;
+    let vRadius = Math.min(vWidth, vHeight) / 2;
 
-    g.selectAll('path').data(links)
-      .enter().append('path')
-        .attr('d', linkPathGenerator);
+    // Prepare our physical space
+    let g = select('svg')
+      .attr('width', vWidth)
+      .attr('height', vHeight)
+      .append('g')
+      .attr('transform', 
+        'translate(' + vWidth / 2 + ',' + vHeight / 2 + ')');
 
-    g.append("circle")
-      .attr("r", 2.5);
+    // Declare d3 layout
+    var vLayout = partition().size([2 * Math.PI, vRadius]);
 
-    g.selectAll('text').data(root.descendants())
-      .enter().append('text')
-        .attr('x', d => d.y)
-        .attr('y', d => d.x)  
-        .attr('dy', '0.32em')  
-        // .attr('text-anchor',d => d.children ? 'middle' : 'start')
-      .text(d => d.children ? d.data.name : `${d.data.name}: ${d.data.value}`)
+    var vArc = arc()
+      .startAngle(function (d) { return d.x0; })
+      .endAngle(function (d) { return d.x1; })
+      .innerRadius(function (d) { return d.y0; })
+      .outerRadius(function (d) { return d.y1; });
+
+    // Layout + Data
+    var vRoot = hierarchy(this.data[this.date][this.hour][this.origin])
+      .sum(function (d) { 
+        return d.value 
+      });
+    console.log("vRoot", vRoot);
+    let vColor = scaleOrdinal(quantize(interpolateRainbow, vRoot.children.length + 1));
+    console.log("vColor", vColor);
+
+    var vNodes = vRoot.descendants();
+    vLayout(vRoot);
+
+    var vSlices = g.selectAll('path')
+      .data(vNodes)
+      .enter()
+      .append('path');
+    
+    // Draw on screen
+    vSlices.filter(function (d) { return d.parent; })
+      .attr('d', vArc)
+      .style('stroke', '#fff')
+      .style('fill', function (d) {
+        return vColor((d.children ? d : d.parent).data.name);
+      });
+    
+    console.log("vSlices", vSlices);
+
   }
+
+  //end of class
 }
 
 

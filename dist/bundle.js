@@ -40349,6 +40349,7 @@ module.exports = g;
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var d3__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! d3 */ "./node_modules/d3/index.js");
+/* harmony import */ var d3_scale_chromatic__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! d3-scale-chromatic */ "./node_modules/d3-scale-chromatic/src/index.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
@@ -40358,6 +40359,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 __webpack_require__(/*! babel-core/register */ "./node_modules/babel-core/register.js");
 
 __webpack_require__(/*! babel-polyfill */ "./node_modules/babel-polyfill/lib/index.js");
+
 
 
 
@@ -40401,16 +40403,14 @@ function () {
     value: function inputValidation() {
       // confirm if inputs are valid, then
       // date, hour, origin needs to be formatted
-      var formDate = document.getElementById("bartDate").value;
-      var formHour = document.getElementById("bartHour").value;
-      var formOrigin = document.getElementById("bartOrigin").value;
+      var formDate = document.getElementById("bartFormDate").value;
+      var formHour = document.getElementById("bartFormHour").value;
+      var formOrigin = document.getElementById("bartFormOrigin").value;
 
       if (formDate === "" || formHour === "" || formOrigin === "") {
         window.alert("Please fillout all fields");
         return false;
       } else {
-        console.log("validation passed");
-        console.log("this.data", this.data);
         formHour = formHour.split(":")[0];
 
         if (formHour.charAt(0) === '0') {
@@ -40426,47 +40426,41 @@ function () {
   }, {
     key: "render",
     value: function render() {
-      // define constants needed for svg
-      var svg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg');
-      var width = document.body.clientWidth;
-      var height = document.body.clientHeight;
-      var margin = {
-        top: 0,
-        right: 100,
-        bottom: 0,
-        left: 75
-      };
-      var innerWidth = width - margin.left - margin.right;
-      var innerHeight = height - margin.top - margin.bottom;
-      var treeLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["tree"])().size([innerHeight, innerWidth]); //before drawing the lines and nodes, clear svg
+      var vWidth = 300;
+      var vHeight = 300;
+      var vRadius = Math.min(vWidth, vHeight) / 2; // Prepare our physical space
 
-      Object(d3__WEBPACK_IMPORTED_MODULE_0__["selectAll"])("g > *").remove();
-      var zoomG = svg.attr('width', width).attr('height', height).append('g');
-      var g = zoomG.append('g').attr('tranform', "translate(".concat(margin.left, ", ").concat(margin.top, ")"));
-      svg.call(Object(d3__WEBPACK_IMPORTED_MODULE_0__["zoom"])().on('zoom', function () {
-        g.attr('transform', d3__WEBPACK_IMPORTED_MODULE_0__["event"].transform);
-      })); // set up the root node, links, path, 
+      var g = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg').attr('width', vWidth).attr('height', vHeight).append('g').attr('transform', 'translate(' + vWidth / 2 + ',' + vHeight / 2 + ')'); // Declare d3 layout
 
-      var root = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(this.data[this.date][this.hour][this.origin]);
-      var links = treeLayout(root).links();
-      console.log("root", root);
-      console.log("links", links);
-      var linkPathGenerator = Object(d3__WEBPACK_IMPORTED_MODULE_0__["linkHorizontal"])().x(function (d) {
-        return d.y;
-      }).y(function (d) {
-        return d.x;
+      var vLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["partition"])().size([2 * Math.PI, vRadius]);
+      var vArc = Object(d3__WEBPACK_IMPORTED_MODULE_0__["arc"])().startAngle(function (d) {
+        return d.x0;
+      }).endAngle(function (d) {
+        return d.x1;
+      }).innerRadius(function (d) {
+        return d.y0;
+      }).outerRadius(function (d) {
+        return d.y1;
+      }); // Layout + Data
+
+      var vRoot = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(this.data[this.date][this.hour][this.origin]).sum(function (d) {
+        return d.value;
       });
-      g.selectAll('path').data(links).enter().append('path').attr('d', linkPathGenerator);
-      g.append("circle").attr("r", 2.5);
-      g.selectAll('text').data(root.descendants()).enter().append('text').attr('x', function (d) {
-        return d.y;
-      }).attr('y', function (d) {
-        return d.x;
-      }).attr('dy', '0.32em') // .attr('text-anchor',d => d.children ? 'middle' : 'start')
-      .text(function (d) {
-        return d.children ? d.data.name : "".concat(d.data.name, ": ").concat(d.data.value);
+      console.log("vRoot", vRoot);
+      var vColor = Object(d3__WEBPACK_IMPORTED_MODULE_0__["scaleOrdinal"])(Object(d3__WEBPACK_IMPORTED_MODULE_0__["quantize"])(d3__WEBPACK_IMPORTED_MODULE_0__["interpolateRainbow"], vRoot.children.length + 1));
+      console.log("vColor", vColor);
+      var vNodes = vRoot.descendants();
+      vLayout(vRoot);
+      var vSlices = g.selectAll('path').data(vNodes).enter().append('path'); // Draw on screen
+
+      vSlices.filter(function (d) {
+        return d.parent;
+      }).attr('d', vArc).style('stroke', '#fff').style('fill', function (d) {
+        return vColor((d.children ? d : d.parent).data.name);
       });
-    }
+      console.log("vSlices", vSlices);
+    } //end of class
+
   }]);
 
   return BartDataVis;
