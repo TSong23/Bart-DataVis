@@ -40426,11 +40426,11 @@ function () {
   }, {
     key: "render",
     value: function render() {
-      var vWidth = 300;
-      var vHeight = 300;
+      var vWidth = 900;
+      var vHeight = 900;
       var vRadius = Math.min(vWidth, vHeight) / 2; // Prepare our physical space
 
-      var g = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg').attr('width', vWidth).attr('height', vHeight).append('g').attr('transform', 'translate(' + vWidth / 2 + ',' + vHeight / 2 + ')'); // Declare d3 layout
+      var g = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg').attr('width', document.body.clientWidth).attr('height', document.body.clientHeight).append('g').attr('transform', 'translate(' + (vWidth / 2 + 175) + ',' + (vHeight / 2 + 50) + ')'); // Declare d3 layout
 
       var vLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["partition"])().size([2 * Math.PI, vRadius]);
       var vArc = Object(d3__WEBPACK_IMPORTED_MODULE_0__["arc"])().startAngle(function (d) {
@@ -40447,18 +40447,46 @@ function () {
         return d.value;
       });
       console.log("vRoot", vRoot);
-      var vColor = Object(d3__WEBPACK_IMPORTED_MODULE_0__["scaleOrdinal"])(Object(d3__WEBPACK_IMPORTED_MODULE_0__["quantize"])(d3__WEBPACK_IMPORTED_MODULE_0__["interpolateRainbow"], vRoot.children.length + 1));
+      var vColor = Object(d3__WEBPACK_IMPORTED_MODULE_0__["scaleOrdinal"])(Object(d3__WEBPACK_IMPORTED_MODULE_0__["quantize"])(d3_scale_chromatic__WEBPACK_IMPORTED_MODULE_1__["interpolateCividis"], vRoot.children.length + 1));
       console.log("vColor", vColor);
       var vNodes = vRoot.descendants();
       vLayout(vRoot);
-      var vSlices = g.selectAll('path').data(vNodes).enter().append('path'); // Draw on screen
-
-      vSlices.filter(function (d) {
-        return d.parent;
+      var vSlices = g.selectAll('g').data(vNodes).enter().append('g');
+      vSlices.append('path').attr('display', function (d) {
+        return d.depth ? null : 'none';
       }).attr('d', vArc).style('stroke', '#fff').style('fill', function (d) {
         return vColor((d.children ? d : d.parent).data.name);
       });
+      vSlices.append('text') // <--1
+      .filter(function (d) {
+        return d.parent;
+      }) // <--2
+      .attr('transform', function (d) {
+        // <--3
+        return 'translate(' + vArc.centroid(d) + ')rotate(' + computeTextRotation(d) + ')';
+      }).attr('dx', '-20') // <--4
+      .attr('dy', '.5em') // <--5
+      .text(function (d) {
+        return d.data.name;
+      }); // <--6
+      // Draw on screen
+      // vSlices.filter(function (d) { return d.parent; })
+      //   .attr('d', vArc)
+      //   .style('stroke', '#fff')
+      //   .style('fill', function (d) {
+      //     return vColor((d.children ? d : d.parent).data.name);
+      //   });
+
       console.log("vSlices", vSlices);
+
+      function computeTextRotation(d) {
+        var angle = (d.x0 + d.x1) / Math.PI * 90; // <-- 1
+        // Avoid upside-down labels; labels aligned with slices
+
+        return angle < 90 || angle > 270 ? angle : angle + 180; // <--2
+        // Alternate label formatting; labels as spokes
+        //return (angle < 180) ? angle - 90 : angle + 90;  // <-- 3
+      }
     } //end of class
 
   }]);
