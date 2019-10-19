@@ -99,7 +99,7 @@ body {
   display: flex;
   flex-direction: row;
   justify-content: space-around;
-  margin: 0% 25% 10% 0%;
+  margin: 5% 15% 10% 5%;
   padding-left: 100px;
 }
 
@@ -112,6 +112,7 @@ body {
   height: 100vh;
   /* background-color: rgb(0, 0, 0); */
   overflow: hidden;
+  background-color: rgba(190, 190, 190, 0.7);
 }
 
 .svg_content {

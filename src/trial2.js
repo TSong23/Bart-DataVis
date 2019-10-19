@@ -2,8 +2,9 @@ require("babel-core/register");
 require("babel-polyfill");
 import { select, selectAll, json, tree, hierarchy, linkHorizontal,
   zoom, event, partition, getBBox, scaleOrdinal, quantize,
-  arc} from 'd3';
-import {interpolateCividis} from 'd3-scale-chromatic';
+  arc, interpolateRainbow} from 'd3';
+import {interpolateCividis, interpolateCool, schemeRdGy,
+        schemeSet3} from 'd3-scale-chromatic';
 
 class BartDataVis {
   constructor() {
@@ -56,8 +57,8 @@ class BartDataVis {
 
   render(){
     
-    let vWidth = 900;
-    let vHeight = 900;
+    let vWidth = 750;
+    let vHeight = 750;
     let vRadius = Math.min(vWidth, vHeight) / 2;
 
     // Prepare our physical space
@@ -65,8 +66,9 @@ class BartDataVis {
       .attr('width', document.body.clientWidth)
       .attr('height', document.body.clientHeight)
       .append('g')
+      .style("font", "10px sans-serif")
       .attr('transform', 
-        'translate(' + ((vWidth / 2)+175) + ',' + ((vHeight / 2)+50) + ')');
+        'translate(' + ((vWidth / 2)+250) + ',' + ((vHeight / 2) + 200) + ')');
 
     // Declare d3 layout
     var vLayout = partition().size([2 * Math.PI, vRadius]);
@@ -74,15 +76,18 @@ class BartDataVis {
     var vArc = arc()
       .startAngle(function (d) { return d.x0; })
       .endAngle(function (d) { return d.x1; })
+      .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
+      .padRadius(vRadius / 2)
       .innerRadius(function (d) { return d.y0; })
-      .outerRadius(function (d) { return d.y1; });
+      .outerRadius(function (d) { return d.y1 - 1; });
 
     // Layout + Data
     var vRoot = hierarchy(this.data[this.date][this.hour][this.origin])
-      .sum(function (d) { return d.value });
+      .sum(function (d) { return d.value })
+      .sort((a,b) => b.value - a.value);
 
     console.log("vRoot", vRoot);
-    let vColor = scaleOrdinal(quantize(interpolateCividis, vRoot.children.length + 1));
+    let vColor = scaleOrdinal(quantize(interpolateRainbow, vRoot.children.length + 1));
     console.log("vColor", vColor);
 
     var vNodes = vRoot.descendants();
@@ -102,36 +107,27 @@ class BartDataVis {
     
     vSlices.append('text')  // <--1
       .filter(function (d) { return d.parent; })  // <--2
-      .attr('transform', function (d) {  // <--3
-        return 'translate(' + vArc.centroid(d) + ')rotate(' + computeTextRotation(d) + ')';
+      .attr("transform", function (d) {
+        const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+        const y = (d.y0 + d.y1) / 1.9;
+        return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
       })
-      .attr('dx', '-20')  // <--4
-      .attr('dy', '.5em')  // <--5
-      .text(function (d) { return d.data.name });  // <--6
-    
-    // Draw on screen
-    // vSlices.filter(function (d) { return d.parent; })
-    //   .attr('d', vArc)
-    //   .style('stroke', '#fff')
-    //   .style('fill', function (d) {
-    //     return vColor((d.children ? d : d.parent).data.name);
-    //   });
-    
-    console.log("vSlices", vSlices);
+      .attr("dy", "0.35em")
+      .text(d => d.data.name)
+      .style('stroke', '#000');
 
-    function computeTextRotation(d) {
-    var angle = (d.x0 + d.x1) / Math.PI * 90;  // <-- 1
-
-    // Avoid upside-down labels; labels aligned with slices
-    return (angle < 90 || angle > 270) ? angle : angle + 180;  // <--2
-
-    // Alternate label formatting; labels as spokes
-    //return (angle < 180) ? angle - 90 : angle + 90;  // <-- 3
-  }
-
-  }
-
+    vSlices.append('svg:title')
+      .text(function (d) { return `${d.data.name}\n Passengers: ${d.value}` })
  
+    //render the information text on top
+    let chartInfo = document.querySelector('.chart_info');
+    let infoText = document.createTextNode(`From ${this.origin} blah `);
+      chartInfo.appendChild(infoText);
+
+
+  }
+  
+
 
   //end of class
 }

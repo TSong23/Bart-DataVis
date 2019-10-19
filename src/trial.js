@@ -1,6 +1,15 @@
 require("babel-core/register");
 require("babel-polyfill");
-import { select, selectAll, json, tree, hierarchy, linkHorizontal, zoom, event } from 'd3';
+import {
+  select, selectAll, json, tree, hierarchy, linkHorizontal,
+  zoom, event, partition, getBBox, scaleOrdinal, quantize,
+  arc, interpolateRainbow, descendants, interpolate,
+  scaleLinear, scaleSqrt
+} from 'd3';
+import {
+  interpolateCividis, interpolateCool, schemeRdGy,
+  schemeSet3
+} from 'd3-scale-chromatic';
 
 class BartDataVis {
   constructor() {
@@ -53,58 +62,86 @@ class BartDataVis {
   }
 
   render() {
-    // define constants needed for svg
-    const svg = select('svg');
-    const width = document.body.clientWidth;
-    const height = document.body.clientHeight;
 
-    const margin = { top: 0, right: 100, bottom: 0, left: 75 };
-    const innerWidth = width - margin.left - margin.right;
-    const innerHeight = height - margin.top - margin.bottom;
+    // Data and Root
+    var vRoot = hierarchy(this.data[this.date][this.hour][this.origin])
+      .sum(function (d) { return d.value });
 
-    const treeLayout = tree().size([innerHeight, innerWidth]);
+    // burst consts
+    // define size, fonts, and color function
+    // let formatNumber = d3.format(",d")
+    let vWidth = 800;
+    let vHeight = 800;
+    let vRadius = Math.min(vWidth, vHeight) / 2;
+    let vColor = scaleOrdinal(quantize(interpolateRainbow, vRoot.children.length + 1));
 
-    //before drawing the lines and nodes, clear svg
-    selectAll("g > *").remove();
+    // burst transition constants
+    let x = scaleLinear()
+      .range([0, 2 * Math.PI]);
 
-    const zoomG = svg
-      .attr('width', width)
-      .attr('height', height)
-      .append('g');
+    let y = scaleSqrt()
+      .range([0, vRadius]);
 
-    const g = zoomG.append('g')
-      .attr('tranform', `translate(${margin.left}, ${margin.top})`);
 
-    svg.call(zoom().on('zoom', () => {
-      g.attr('transform', event.transform);
-    }));
 
-    // set up the root node, links, path, 
-    let root = hierarchy(this.data[this.date][this.hour][this.origin]);
-    let links = treeLayout(root).links();
+    // select svg and give height and width
+    let vSvg = select('svg')
+      .attr('width', document.body.clientWidth)
+      .attr('height', document.body.clientHeight)
+      .append("g")
+      .style("font", "10px sans-serif")
+      .attr("transform", "translate(" + ((vWidth / 2) + 250) + ',' + ((vHeight / 2) + 200) + ')');
 
-    console.log("root", root);
-    console.log("links", links);
+    //define arc properties
+    let vLayout = partition().size([2 * Math.PI, vRadius]);
 
-    const linkPathGenerator = linkHorizontal()
-      .x(d => d.y)
-      .y(d => d.x);
+    let vArc = arc()
+      .startAngle(function (d) { return d.x0; })
+      .endAngle(function (d) { return d.x1; })
+      .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
+      .padRadius(vRadius / 2)
+      .innerRadius(function (d) { return d.y0; })
+      .outerRadius(function (d) { return d.y1 - 1; });
 
-    g.selectAll('path').data(links)
-      .enter().append('path')
-      .attr('d', linkPathGenerator);
+    // define slices and apply partition function
+    let vNodes = vRoot.descendants();    
+    vLayout(vRoot);
+    console.log("vNodes", vNodes);
 
-    g.append("circle")
-      .attr("r", 2.5);
+    // attach descendants and burst slices
+    let vSlices = vSvg.selectAll("g")
+      .data(vNodes)
+      .enter()
+      .append("g");
+    
+    vSlices.append('path')
+      .attr('display', function (d) { return d.depth ? null : 'none' })
+      .attr('d', vArc)
+      .style('stroke', '#fff')
+      .style('fill', function (d) { return vColor((d.children ? d : d.parent).data.name); })
+      .on("click", click)
+      .append("title")
+      .text(d => { return d.data.name + "\n" + d.value; });
 
-    g.selectAll('text').data(root.descendants())
-      .enter().append('text')
-      .attr('x', d => d.y)
-      .attr('y', d => d.x)
-      .attr('dy', '0.32em')
-      // .attr('text-anchor',d => d.children ? 'middle' : 'start')
-      .text(d => d.children ? d.data.name : `${d.data.name}: ${d.data.value}`)
-  }
+
+    function click(d) {
+      console.log("click registered")
+      vSvg.transition()
+        .duration(750)
+        .tween("scale", function () {
+          var xd = interpolate(x.domain(), [d.x0, d.x1]),
+              yd = interpolate(y.domain(), [d.y0, 1]),
+              yr = interpolate(y.range(), [d.y0 ? 20 : 0, vRadius]);
+          return function (t) { 
+            x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); 
+          };
+        })
+        .selectAll("path")
+        .attrTween("d", function (d) { return function () { return vArc(d); }; });
+    };
+    
+  }  
+  //end of class
 }
 
 

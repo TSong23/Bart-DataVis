@@ -40339,10 +40339,10 @@ module.exports = g;
 
 /***/ }),
 
-/***/ "./src/trial2.js":
-/*!***********************!*\
-  !*** ./src/trial2.js ***!
-  \***********************/
+/***/ "./src/trial.js":
+/*!**********************!*\
+  !*** ./src/trial.js ***!
+  \**********************/
 /*! no exports provided */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -40426,67 +40426,67 @@ function () {
   }, {
     key: "render",
     value: function render() {
-      var vWidth = 900;
-      var vHeight = 900;
-      var vRadius = Math.min(vWidth, vHeight) / 2; // Prepare our physical space
+      // Data and Root
+      var vRoot = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(this.data[this.date][this.hour][this.origin]).sum(function (d) {
+        return d.value;
+      }); // burst consts
+      // define size, fonts, and color function
+      // let formatNumber = d3.format(",d")
 
-      var g = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg').attr('width', document.body.clientWidth).attr('height', document.body.clientHeight).append('g').attr('transform', 'translate(' + (vWidth / 2 + 175) + ',' + (vHeight / 2 + 50) + ')'); // Declare d3 layout
+      var vWidth = 800;
+      var vHeight = 800;
+      var vRadius = Math.min(vWidth, vHeight) / 2;
+      var vColor = Object(d3__WEBPACK_IMPORTED_MODULE_0__["scaleOrdinal"])(Object(d3__WEBPACK_IMPORTED_MODULE_0__["quantize"])(d3__WEBPACK_IMPORTED_MODULE_0__["interpolateRainbow"], vRoot.children.length + 1)); // burst transition constants
+
+      var x = Object(d3__WEBPACK_IMPORTED_MODULE_0__["scaleLinear"])().range([0, 2 * Math.PI]);
+      var y = Object(d3__WEBPACK_IMPORTED_MODULE_0__["scaleSqrt"])().range([0, vRadius]); // select svg and give height and width
+
+      var vSvg = Object(d3__WEBPACK_IMPORTED_MODULE_0__["select"])('svg').attr('width', document.body.clientWidth).attr('height', document.body.clientHeight).append("g").style("font", "10px sans-serif").attr("transform", "translate(" + (vWidth / 2 + 250) + ',' + (vHeight / 2 + 200) + ')'); //define arc properties
 
       var vLayout = Object(d3__WEBPACK_IMPORTED_MODULE_0__["partition"])().size([2 * Math.PI, vRadius]);
       var vArc = Object(d3__WEBPACK_IMPORTED_MODULE_0__["arc"])().startAngle(function (d) {
         return d.x0;
       }).endAngle(function (d) {
         return d.x1;
-      }).innerRadius(function (d) {
+      }).padAngle(function (d) {
+        return Math.min((d.x1 - d.x0) / 2, 0.005);
+      }).padRadius(vRadius / 2).innerRadius(function (d) {
         return d.y0;
       }).outerRadius(function (d) {
-        return d.y1;
-      }); // Layout + Data
+        return d.y1 - 1;
+      }); // define slices and apply partition function
 
-      var vRoot = Object(d3__WEBPACK_IMPORTED_MODULE_0__["hierarchy"])(this.data[this.date][this.hour][this.origin]).sum(function (d) {
-        return d.value;
-      });
-      console.log("vRoot", vRoot);
-      var vColor = Object(d3__WEBPACK_IMPORTED_MODULE_0__["scaleOrdinal"])(Object(d3__WEBPACK_IMPORTED_MODULE_0__["quantize"])(d3_scale_chromatic__WEBPACK_IMPORTED_MODULE_1__["interpolateCividis"], vRoot.children.length + 1));
-      console.log("vColor", vColor);
       var vNodes = vRoot.descendants();
       vLayout(vRoot);
-      var vSlices = g.selectAll('g').data(vNodes).enter().append('g');
+      console.log("vNodes", vNodes); // attach descendants and burst slices
+
+      var vSlices = vSvg.selectAll("g").data(vNodes).enter().append("g");
       vSlices.append('path').attr('display', function (d) {
         return d.depth ? null : 'none';
       }).attr('d', vArc).style('stroke', '#fff').style('fill', function (d) {
         return vColor((d.children ? d : d.parent).data.name);
+      }).on("click", click).append("title").text(function (d) {
+        return d.data.name + "\n" + d.value;
       });
-      vSlices.append('text') // <--1
-      .filter(function (d) {
-        return d.parent;
-      }) // <--2
-      .attr('transform', function (d) {
-        // <--3
-        return 'translate(' + vArc.centroid(d) + ')rotate(' + computeTextRotation(d) + ')';
-      }).attr('dx', '-20') // <--4
-      .attr('dy', '.5em') // <--5
-      .text(function (d) {
-        return d.data.name;
-      }); // <--6
-      // Draw on screen
-      // vSlices.filter(function (d) { return d.parent; })
-      //   .attr('d', vArc)
-      //   .style('stroke', '#fff')
-      //   .style('fill', function (d) {
-      //     return vColor((d.children ? d : d.parent).data.name);
-      //   });
 
-      console.log("vSlices", vSlices);
-
-      function computeTextRotation(d) {
-        var angle = (d.x0 + d.x1) / Math.PI * 90; // <-- 1
-        // Avoid upside-down labels; labels aligned with slices
-
-        return angle < 90 || angle > 270 ? angle : angle + 180; // <--2
-        // Alternate label formatting; labels as spokes
-        //return (angle < 180) ? angle - 90 : angle + 90;  // <-- 3
+      function click(d) {
+        console.log("click registered");
+        vSvg.transition().duration(750).tween("scale", function () {
+          var xd = Object(d3__WEBPACK_IMPORTED_MODULE_0__["interpolate"])(x.domain(), [d.x0, d.x1]),
+              yd = Object(d3__WEBPACK_IMPORTED_MODULE_0__["interpolate"])(y.domain(), [d.y0, 1]),
+              yr = Object(d3__WEBPACK_IMPORTED_MODULE_0__["interpolate"])(y.range(), [d.y0 ? 20 : 0, vRadius]);
+          return function (t) {
+            x.domain(xd(t));
+            y.domain(yd(t)).range(yr(t));
+          };
+        }).selectAll("path").attrTween("d", function (d) {
+          return function () {
+            return vArc(d);
+          };
+        });
       }
+
+      ;
     } //end of class
 
   }]);
@@ -40508,14 +40508,14 @@ document.addEventListener('DOMContentLoaded', function () {
 /***/ }),
 
 /***/ 0:
-/*!********************************************!*\
-  !*** multi babel-polyfill ./src/trial2.js ***!
-  \********************************************/
+/*!*******************************************!*\
+  !*** multi babel-polyfill ./src/trial.js ***!
+  \*******************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(/*! babel-polyfill */"./node_modules/babel-polyfill/lib/index.js");
-module.exports = __webpack_require__(/*! ./src/trial2.js */"./src/trial2.js");
+module.exports = __webpack_require__(/*! ./src/trial.js */"./src/trial.js");
 
 
 /***/ })
