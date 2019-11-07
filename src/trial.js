@@ -26,7 +26,7 @@ class BartDataVis {
   }
 
   fetchData() {
-    return this.data = json('janData.json').then(data => {
+    return this.data = json('../dist/janData.json').then(data => {
       return data
     });
   }
@@ -126,23 +126,32 @@ class BartDataVis {
 
     function click(d) {
       console.log("click registered")
+      console.log("x", x);
+      console.log("y", y)
+      console.log("d", d)
       vSvg.transition()
         .duration(750)
         .tween("scale", function () {
           var xd = interpolate(x.domain(), [d.x0, d.x1]),
               yd = interpolate(y.domain(), [d.y0, 1]),
               yr = interpolate(y.range(), [d.y0 ? 20 : 0, vRadius]);
+              console.log("tween, xd, yd, yr", xd, yd, yr)
           return function (t) { 
             x.domain(xd(t)); y.domain(yd(t)).range(yr(t)); 
           };
         })
         .selectAll("path")
-        .attrTween("d", function (d) { return function () { return vArc(d); }; });
-    };
+        .attrTween("d", function (d) { 
+          console.log("attrTween, d", d)
+          return function () { 
+            return vArc(d); 
+          }; 
+        });
+    }; //end of function click
     
-  }  
-  //end of class
-}
+  } //end of render
+  
+}//end of class
 
 
 document.addEventListener('DOMContentLoaded', () => {

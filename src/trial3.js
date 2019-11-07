@@ -1,145 +1,172 @@
-// From http://jsfiddle.net/Karimjaafreh/thm9m6t4/ which was from 
-//   http://blog.luzid.com/2013/extending-the-d3-zoomable-sunburst-with-labels/
+require("babel-core/register");
+require("babel-polyfill");
 
-var width = 500,
-  height = 500,
-  radius = Math.min(width, height) / 2;
+import * as janData from '../dist/janData.json';
 
-var x = d3.scale.linear().range([0, 2 * Math.PI]);
-var y = d3.scale.sqrt().range([0, radius]);
-var color = d3.scale.category10();
+import {
+  select, selectAll, json, tree, hierarchy, linkHorizontal,
+  zoom, event, partition, getBBox, scaleOrdinal, quantize,
+  arc, interpolateRainbow, descendants, interpolate,
+  scaleLinear, scaleSqrt
+} from 'd3';
 
-var svg = d3.select("body").append("svg")
-  .attr("width", width)
-  .attr("height", height)
-  .append("g").attr("transform", "translate(" + width / 2 + "," + (height / 2 + 10) + ") rotate(-90 0 0)");
+import {
+  interpolateCividis, interpolateCool, schemeRdGy,
+  schemeSet3
+} from 'd3-scale-chromatic';
 
-var partition = d3.layout.partition()
-  .value(function (d) { return d.size; });
+class BartDataVis {
+  constructor() {
+    this.data = janData["default"];
+    this.test;
+    this.date;
+    this.hour;
+    this.origin;
 
-var arc = d3.svg.arc()
-  .startAngle(function (d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x))); })
-  .endAngle(function (d) { return Math.max(0, Math.min(2 * Math.PI, x(d.x + d.dx))); })
-  .innerRadius(function (d) { return Math.max(0, y(d.y)); })
-  .outerRadius(function (d) { return Math.max(0, y(d.y + d.dy)); });
-
-//d3.json("/d/4063550/flare.json", function(error, root) {
-var root = getData();
-
-var g = svg.selectAll("g")
-  .data(partition.nodes(root)).enter().append("g");
-
-var path = g.append("path").attr("d", arc)
-  .style("fill", function (d) { return color((d.children ? d : d.parent).name); })
-  .on("click", click);
-
-//.append("text")
-var text = g.append("text").attr("x", function (d) { return y(d.y); })
-  .attr("dx", "6") // margin
-  .attr("dy", ".35em") // vertical-align
-  .attr("transform", function (d) { return "rotate(" + computeTextRotation(d) + ")"; })
-  .text(function (d) { return d.name; })
-  .style("fill", "white");
-
-function computeTextRotation(d) {
-  var angle = x(d.x + d.dx / 2) - Math.PI / 2;
-  return angle / Math.PI * 180;
-}
-
-
-function click(d) {
-  // fade out all text elements
-  if (d.size !== undefined) {
-    d.size += 100;
-  };
-  text.transition().attr("opacity", 0);
-
-  path.transition().duration(750)
-    .attrTween("d", arcTween(d))
-    .each("end", function (e, i) {
-      // check if the animated element's data e lies within the visible angle span given in d
-      if (e.x >= d.x && e.x < (d.x + d.dx)) {
-        // get a selection of the associated text element
-        var arcText = d3.select(this.parentNode).select("text");
-        // fade in the text element and recalculate positions
-        arcText.transition().duration(750)
-          .attr("opacity", 1)
-          .attr("transform", function () { return "rotate(" + computeTextRotation(e) + ")" })
-          .attr("x", function (d) { return y(d.y); });
-      }
-    });
-}
-
-// Word wrap!
-var insertLinebreaks = function (t, d, width) {
-  alert(0)
-  var el = d3.select(t);
-  var p = d3.select(t.parentNode);
-  p.append("g").attr("x", function (d) { return y(d.y); })
-    .attr("transform", function (d) { return "rotate(" + computeTextRotation(d) + ")"; })
-    .append("foreignObject")
-    .attr('x', -width / 2)
-    .attr("width", width).attr("height", 200)
-    .append("xhtml:p").attr('style', 'word-wrap: break-word; text-align:center;')
-    .html(d.name);
-  alert(1)
-  el.remove();
-  alert(2);
-};
-
-
-d3.select(self.frameElement).style("height", height + "px");
-
-// Interpolate the scales!
-function arcTween(d) {
-  var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
-    yd = d3.interpolate(y.domain(), [d.y, 1]),
-    yr = d3.interpolate(y.range(), [d.y ? 20 : 0, radius]);
-  return function (d, i) {
-    return i ? function (t) {
-      return arc(d);
-    } : function (t) {
-      x.domain(xd(t));
-      y.domain(yd(t)).range(yr(t));
-      return arc(d);
-    };
-  };
-}
-
-function getData() {
-  return {
-    "name": "Root",
-    "children": [
-      {
-        "name": "A1",
-        "children": [
-          { "name": "B1", "size": 30 },
-          { "name": "B2", "size": 40 },
-          {
-            "name": "B3",
-            "children": [
-              { "name": "C1", "size": 10 },
-              { "name": "C2", "size": 15 }
-            ]
-          }
-        ]
-      },
-      {
-        "name": "A2",
-        "children": [
-          { "name": "B4", "size": 40 },
-          { "name": "B5", "size": 30 },
-          { "name": "B6", "size": 10 }
-        ]
-      },
-      {
-        "name": "A3",
-        "children": [
-          { "name": "B7", "size": 50 },
-          { "name": "B8", "size": 15 }
-
-        ]
-      }
-    ]
+    this.fetchData = this.fetchData.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.inputValidation = this.inputValidation.bind(this);
+    this.render = this.render.bind(this);
   }
-};
+
+  fetchData() {
+    return this.data = json('janData.json').then(data => {
+      return data
+    });
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    if (this.inputValidation()) {
+      this.render();
+    };
+  }
+
+  inputValidation() {
+    // confirm if inputs are valid, then
+    // date, hour, origin needs to be formatted
+    let formDate = document.getElementById("bartFormDate").value;
+    let formHour = document.getElementById("bartFormHour").value;
+    let formOrigin = document.getElementById("bartFormOrigin").value;
+
+    if (formDate === "" || formHour === "" || formOrigin === "") {
+      window.alert("Please fillout all fields");
+      return false;
+    } else {
+      formHour = formHour.split(":")[0];
+      if (formHour.charAt(0) === '0') {
+        formHour = formHour.substr(1);
+      }
+
+      this.date = formDate;
+      this.hour = formHour;
+      this.origin = formOrigin;
+      return true;
+    }
+  }
+
+  render() {
+
+    // Data and Root
+    var vRoot = hierarchy(this.data[this.date][this.hour][this.origin])
+      .sum( d =>  d.value );
+
+    // burst consts
+    // define size, fonts, and color function
+    // let formatNumber = d3.format(",d")
+    let vWidth = 800;
+    let vHeight = 800;
+    let vRadius = Math.min(vWidth, vHeight) / 2;
+    let vColor = scaleOrdinal(quantize(interpolateRainbow, vRoot.children.length + 1));
+
+    // burst transition constants
+    let x = scaleLinear()
+      .range([0, 2 * Math.PI]);
+
+    let y = scaleSqrt()
+      .range([0, vRadius]);
+
+
+
+    // select svg and give height and width
+    let vSvg = select('svg')
+      .attr('width', 1080)
+      .attr('height', 949)
+      .append("g")
+      .style("font", "10px sans-serif")
+      .attr("transform", "translate(" + ((vWidth / 2) + 250) + ',' + ((vHeight / 2) + 100) + ')');
+
+    //define arc properties
+    let vLayout = partition().size([2 * Math.PI, vRadius]);
+
+    let vArc = arc()
+      .startAngle(function (d) { return d.x0; })
+      .endAngle(function (d) { return d.x1; })
+      .padAngle(d => Math.min((d.x1 - d.x0) / 2, 0.005))
+      .padRadius(vRadius / 2)
+      .innerRadius(function (d) { return d.y0; })
+      .outerRadius(function (d) { return d.y1 - 1; });
+
+    // define slices and apply partition function
+    let vNodes = vRoot.descendants();
+    vLayout(vRoot);
+    console.log("vNodes", vNodes);
+
+    // attach descendants and burst slices
+    let vSlices = vSvg.selectAll("g")
+      .data(vNodes)
+      .enter()
+      .append("g");
+
+    vSlices.append('path')
+      .attr('display', function (d) { return d.depth ? null : 'none' })
+      .attr('d', vArc)
+      .style('stroke', '#fff')
+      .style('fill', function (d) { return vColor((d.children ? d : d.parent).data.name); })
+      .on("click", click)
+      .append("title")
+      .text(d => { return d.data.name + "\n" + d.value; })
+
+
+    function click(d) {
+      console.log("click registered")
+      console.log("x", x);
+      console.log("y", y)
+      console.log("d", d)
+      vSvg.transition()
+        .duration(750)
+        .tween("scale", function () {
+          var xd = interpolate(x.domain(), [d.x0, d.x1]),
+            yd = interpolate(y.domain(), [d.y0, 1]),
+            yr = interpolate(y.range(), [d.y0 ? 20 : 0, vRadius]);
+          console.log("tween, xd, yd, yr", xd, yd, yr)
+          return function (t) {
+            x.domain(xd(t)); y.domain(yd(t)).range(yr(t));
+          };
+        })
+        .selectAll("path")
+        .attrTween("d", function (d) {
+          console.log("attrTween, d", d)
+          return function () {
+            return vArc(d);
+          };
+        });
+    }; //end of function click
+
+  } //end of render
+
+}//end of class
+
+
+document.addEventListener('DOMContentLoaded', () => {
+  // load the styles and links
+  // load the data
+  // then set data and wait for user to submit 
+  const bartDataVis = new BartDataVis();
+  document.getElementById("bartFormSubmit").onclick = bartDataVis.handleSubmit;
+  // bartDataVis.fetchData()
+  //   .then(data => {
+  //     bartDataVis.data = data;
+  //     document.getElementById("bartFormSubmit").onclick = bartDataVis.handleSubmit;
+  //   });
+});
