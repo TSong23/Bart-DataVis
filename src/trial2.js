@@ -68,7 +68,6 @@ class BartDataVis {
   vPartition(data){
     const root = d3.hierarchy(data)
       .sum(d => d.value)
-      .sort((a, b) => b.value - a.value);
     return d3.partition()
       .size([2 * Math.PI, root.height + 1])
       (root);
@@ -128,6 +127,7 @@ class BartDataVis {
     let vWidth = 800;
     let vHeight = 800;
     const radius = Math.min(vWidth, vHeight) / 6;
+    debugger
     const color = scaleOrdinal(quantize(interpolateRainbow, this.data.children.length + 1));
     const format = format(",d")
 
