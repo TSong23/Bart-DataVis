@@ -70,7 +70,7 @@ class BartDataVis {
     // Data and Root
     var vRoot = hierarchy(this.data[this.date][this.hour][this.origin])
       .sum( d =>  d.value );
-
+    
     // burst consts
     // define size, fonts, and color function
     // let formatNumber = d3.format(",d")
