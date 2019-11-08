@@ -105,9 +105,9 @@ class BartDataVis {
 
     // create svg element
     const vSvg = select('svg')
-      .attr('width', 1320)
-      .attr('height', "auto")
-      .style("font", "10px sans-serif")
+      .style('width', 1320)
+      .style('height', 1080)
+      .style("font", "14px sans-serif")
 
     const g = vSvg.append("g")
       .attr("transform", "translate(" + ((vWidth / 2)+ 250) + ',' + ((vWidth / 2)  + 25) + ')')
@@ -123,39 +123,83 @@ class BartDataVis {
             d = d.parent; 
             return vColor(d.data.name); 
         })
-      .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.6 : 0.4) : 0)
+      .attr("fill-opacity", d => arcVisible(d.current) ? (d.children ? 0.7 : 0.5) : 0)
       .attr("d", d => vArc(d.current));
     
-    // debugger
-    // path.filter(d => d.children)
-    //   .style("cursor", "pointer")
-    //   .on("click", clicked);
+    path.filter(d => d.children)
+      .style("cursor", "pointer")
+      .on("click", clicked);
 
 
     path.append("title")
-      .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${format(d.value)}`);
+      .text(d => `${d.ancestors().map(d => d.data.name).reverse().join("/")}\n${vFormat(d.value)}`);
     
-    // const label = g.append("g")
-    //   .attr("pointer-events", "none")
-    //   .attr("text-anchor", "middle")
-    //   .style("user-select", "none")
-    //   .selectAll("text")
-    //   .data(vRoot.descendants().slice(1))
-    //   .join("text")
-    //   .attr("dy", "0.35em")
-    //   .attr("fill-opacity", d => this.labelVisible(d.current))
-    //   .attr("transform", d => this.labelTransform(d.current))
-    //   .text(d => d.data.name);
+    const label = g.append("g")
+      .attr("pointer-events", "none")
+      .attr("text-anchor", "middle")
+      .style("user-select", "none")
+      .selectAll("text")
+      .data(vRoot.descendants().slice(1))
+      .join("text")
+      .attr("dy", "0.35em")
+      .attr("fill-opacity", d => +labelVisible(d.current))
+      .attr("transform", d => labelTransform(d.current))
+      .text(d => d.children ? `${d.data.name}\n${vFormat(d.value)}` : d.data.name );
 
-    // const parent = g.append("circle")
-    //   .datum(vRoot)
-    //   .attr("r", vRadius)
-    //   .attr("fill", "none")
-    //   .attr("pointer-events", "all")
-    //   // .on("click", clicked);
+    const vParent = g.append("circle")
+      .datum(vRoot)
+      .attr("r", vRadius)
+      .attr("fill", "none")
+      .attr("pointer-events", "all")
+      .on("click", clicked);
+
+    function clicked(p) {
+      vParent.datum(p.parent || vRoot);
+
+      vRoot.each(d => d.target = {
+        x0: Math.max(0, Math.min(1, (d.x0 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+        x1: Math.max(0, Math.min(1, (d.x1 - p.x0) / (p.x1 - p.x0))) * 2 * Math.PI,
+        y0: Math.max(0, d.y0 - p.depth),
+        y1: Math.max(0, d.y1 - p.depth)
+      });
+
+      const t = g.transition().duration(750);
+
+      // Transition the data on all arcs, even the ones that aren’t visible,
+      // so that if this transition is interrupted, entering arcs will start
+      // the next transition from the desired position.
+      path.transition(t)
+        .tween("data", d => {
+          const i = interpolate(d.current, d.target);
+          return t => d.current = i(t);
+        })
+        .filter(function (d) {
+          return +this.getAttribute("fill-opacity") || arcVisible(d.target);
+        })
+        .attr("fill-opacity", d => arcVisible(d.target) ? (d.children ? 0.7 : 0.5) : 0)
+        .attrTween("d", d => () => vArc(d.current));
+
+      label.filter(function (d) {
+        return +this.getAttribute("fill-opacity") || labelVisible(d.target);
+      }).transition(t)
+        .attr("fill-opacity", d => +labelVisible(d.target))
+        .attrTween("transform", d => () => labelTransform(d.current))
+        .text(d => `${d.data.name}\n${vFormat(d.value)}`);
+    }
+    
 
     function arcVisible(d) {
       return d.y1 <= 3 && d.y0 >= 1 && d.x1 > d.x0;
+    }
+    
+    function labelVisible(d) {
+      return d.y1 <= 3 && d.y0 >= 1 && (d.y1 - d.y0) * (d.x1 - d.x0) > 0.03;
+    }
+
+    function labelTransform(d) {
+      const x = (d.x0 + d.x1) / 2 * 180 / Math.PI;
+      const y = (d.y0 + d.y1) / 2 * vRadius;
+      return `rotate(${x - 90}) translate(${y},0) rotate(${x < 180 ? 0 : 180})`;
     }
 
   } //end of render
