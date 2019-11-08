@@ -103,8 +103,11 @@ class BartDataVis {
     const vColor = scaleOrdinal().range(quantize(interpolateRainbow, this.data[this.date][this.hour][this.origin].children.length + 1));
 
 
-    // create svg element
+    // clear previous svg then create svg element
     const vSvg = select('svg')
+      .html("")
+    
+    // vSvg = select('svg')
       .style('width', 1320)
       .style('height', 1080)
       .style("font", "14px sans-serif")
@@ -184,7 +187,7 @@ class BartDataVis {
       }).transition(t)
         .attr("fill-opacity", d => +labelVisible(d.target))
         .attrTween("transform", d => () => labelTransform(d.current))
-        .text(d => `${d.data.name}\n${vFormat(d.value)}`);
+        .text(d => `${d.data.name}: ${vFormat(d.value)}`);
     }
     
 

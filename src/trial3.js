@@ -90,6 +90,7 @@ class BartDataVis {
 
     // select svg and give height and width
     let vSvg = select('svg')
+      .selectAll("*").remove()
       .attr('width', 1080)
       .attr('height', 949)
       .append("g")
