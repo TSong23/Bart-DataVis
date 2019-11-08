@@ -72,8 +72,8 @@ class BartDataVis {
     const vFormat = format(",d");
     
     // svg height, width, and radius or arc
-    let vWidth = 1080;
-    let vHeight = 949;  
+    let vWidth = 900;
+    // let vHeight = 949;  
     let vRadius = vWidth / 6;
 
     // arc drawing
@@ -105,12 +105,12 @@ class BartDataVis {
 
     // create svg element
     const vSvg = select('svg')
-      .attr('width', vWidth)
-      .attr('height', vHeight)
+      .attr('width', 1320)
+      .attr('height', "auto")
       .style("font", "10px sans-serif")
 
     const g = vSvg.append("g")
-      .attr("transform", "translate(" + ((vWidth / 2) + 250) + ',' + ((vHeight / 2) + 100) + ')')
+      .attr("transform", "translate(" + ((vWidth / 2)+ 250) + ',' + ((vWidth / 2)  + 25) + ')')
     
 
     // create path elements

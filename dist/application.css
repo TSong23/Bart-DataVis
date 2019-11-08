@@ -17,7 +17,7 @@ section, summary, time, mark, audio, video {
 }
 
 h2 {
-  font-size: 36px;
+  font-size: 32px;
   color: white;
   font-weight: 599;
   margin: 0% 7% 0% 7%;
@@ -40,7 +40,7 @@ body {
 .header {
   display: flex;
   flex-direction: column;
-  width: 35vw;
+  width: 600px;
   height: 100vh;
   font-family: Verdana, Geneva, Tahoma, sans-serif; 
   color: white;
@@ -92,7 +92,7 @@ body {
   flex-direction: row;
   justify-content: space-around;
   margin: 5% 10% 5% 0%;
-  padding-left: 100px;
+  padding-left: 70px;
 }
 
 .form_station_submit{
@@ -100,7 +100,7 @@ body {
   flex-direction: row;
   justify-content: space-around;
   margin: 5% 15% 10% 5%;
-  padding-left: 100px;
+  padding-left: 40px;
 }
 
 .personal_links {
@@ -108,7 +108,7 @@ body {
 }
 
 .svg_container {
-  width: 65vw;
+  width: 1320px;
   height: 100vh;
   /* background-color: rgb(0, 0, 0); */
   overflow: hidden;
